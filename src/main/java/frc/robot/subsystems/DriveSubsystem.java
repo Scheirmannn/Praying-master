@@ -37,7 +37,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // Track heading ourselves using module states
-  private double m_headingRad = 0.0;
+  private double m_headingRad = Math.PI;
 
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,

@@ -66,8 +66,8 @@ public class RobotContainer {
                 () -> {
                     System.out.println("rightX: " + m_driverController.getRightX());
                     m_robotDrive.drive(
-                        -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                        -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                        MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                        MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
                         -MathUtil.applyDeadband(m_driverController.getRightX(), RobotBase.isSimulation() ? 0.5 : OIConstants.kDriveDeadband),
                         true );
                 },
