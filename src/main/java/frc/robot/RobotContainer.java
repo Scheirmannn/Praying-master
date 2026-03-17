@@ -22,7 +22,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ButtonPadSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.DriveSimSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -58,14 +57,6 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
-
-        @SuppressWarnings("unused")
-        DriveSimSubsystem m_driveSim;
-
-        // Then in the constructor:
-            if (RobotBase.isSimulation()) {
-                m_driveSim = new DriveSimSubsystem(m_robotDrive);
-            }
 
         // Configure default commands
         m_robotDrive.setDefaultCommand(
