@@ -51,23 +51,19 @@ public class ButtonPadSubsystem extends SubsystemBase{
     }
 
     public Command button4PressedCommand() {
-        return new RunCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: m_shooter.shooterSpinUpCommand(); break;
-                case PROFILE2: m_shooter.fullShootCommand(); break;
-                default: break;
-            }
-        }, this);
+        switch (currentProfile) {
+            case PROFILE1: return m_shooter.shooterSpinUpCommand();
+            case PROFILE2: return m_shooter.fullShootCommand();
+            default: return new InstantCommand();
+        }
     }
 
     public Command button4ReleasedCommand() {
-        return new InstantCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: m_shooter.shooterStop(); break;
-                case PROFILE2: m_shooter.dualStopCommand(); break;
-                default: break;
-            }
-        }, this);
+        switch (currentProfile) {
+            case PROFILE1: m_shooter.shooterStop(); 
+            case PROFILE2: m_shooter.dualStopCommand(); 
+            default: return new InstantCommand ();
+        }
     }
 
     public Command button5Command() {
@@ -81,23 +77,19 @@ public class ButtonPadSubsystem extends SubsystemBase{
     }
 
     public Command button6PressedCommand() {
-        return new InstantCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: m_shooter.gateStartCommand(); break;
-                case PROFILE2: m_shooter.gateReverseCommand(); break;
-                default: break;
-            }
-        }, this);
+        switch (currentProfile) {
+            case PROFILE1: m_shooter.gateStartCommand();
+            case PROFILE2: m_shooter.gateReverseCommand();
+            default: return new InstantCommand();
+        }
     }
 
     public Command button6ReleasedCommand() {
-        return new InstantCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: m_shooter.gateStopCommand(); break;
-                case PROFILE2: m_shooter.gateStopCommand(); break;
-                default: break;
-            }
-        }, this);
+        switch (currentProfile) {
+            case PROFILE1: m_shooter.gateStopCommand();
+            case PROFILE2: m_shooter.gateStopCommand();
+            default: return new InstantCommand();
+        }
     }
 
     public Command button7Command() {
