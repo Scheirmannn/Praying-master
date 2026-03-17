@@ -60,46 +60,40 @@ public class ButtonPadSubsystem extends SubsystemBase{
 
     public Command button4ReleasedCommand() {
         switch (currentProfile) {
-            case PROFILE1: m_shooter.shooterStop(); 
-            case PROFILE2: m_shooter.dualStopCommand(); 
+            case PROFILE1: return m_shooter.shooterStopCommand(); 
+            case PROFILE2: return m_shooter.dualStopCommand(); 
             default: return new InstantCommand ();
         }
     }
 
     public Command button5Command() {
-        return new InstantCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: m_shooter.cycleShootSpeedCommand(); break;
-                case PROFILE2: break;
-                default: break;
-            }
-        }, this);
+        switch (currentProfile) {
+            case PROFILE1: return m_shooter.cycleShootSpeedCommand();
+            default: return new InstantCommand();
+        }
     }
 
     public Command button6PressedCommand() {
         switch (currentProfile) {
-            case PROFILE1: m_shooter.gateStartCommand();
-            case PROFILE2: m_shooter.gateReverseCommand();
+            case PROFILE1: return m_shooter.gateStartCommand();
+            case PROFILE2: return m_shooter.gateReverseCommand();
             default: return new InstantCommand();
         }
     }
 
     public Command button6ReleasedCommand() {
         switch (currentProfile) {
-            case PROFILE1: m_shooter.gateStopCommand();
-            case PROFILE2: m_shooter.gateStopCommand();
+            case PROFILE1: return m_shooter.gateStopCommand();
+            case PROFILE2: return m_shooter.gateStopCommand();
             default: return new InstantCommand();
         }
     }
 
     public Command button7Command() {
-        return new InstantCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: m_shooter.cycleGatePowerCommand(); break;
-                case PROFILE2: break;
-                default: break;
-            }
-        }, this);
+        switch (currentProfile) {
+            case PROFILE1: return m_shooter.cycleGatePowerCommand();
+            default: return new InstantCommand();
+        }
     }
     
     public Command button8Command() {
