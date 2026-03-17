@@ -193,8 +193,8 @@ public class ShooterSubsystem extends SubsystemBase {
     
     public Command dualStopCommand() {
         return new InstantCommand (() ->{
-            gateStopCommand();
-            shooterStopCommand();
+            gateStop();
+            shooterStop();
         }, this);
     }
 
