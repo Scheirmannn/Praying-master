@@ -81,6 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
         rightEncoder = rightMotor.getEncoder();
         SmartDashboard.putNumber("Current Speed", m_currentSpeed.speed);
         SmartDashboard.putNumber("Current Gate Power", m_currentGatePower.gatePower);
+        SmartDashboard.putBoolean("Shooter at speed", false);
 
     }
 
@@ -215,6 +216,12 @@ public class ShooterSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             cycleGatePowers();
         }, this);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("Shooter at speed", isAtSpeed());
+        SmartDashboard.putNumber("Shooter speed (MetersPerSec)", getShooterVelocity());
     }
 
 }

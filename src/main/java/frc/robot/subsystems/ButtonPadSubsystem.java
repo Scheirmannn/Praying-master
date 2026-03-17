@@ -100,7 +100,7 @@ public class ButtonPadSubsystem extends SubsystemBase{
     }
 
     public Command button9Command() {
-        return m_intake.IntakeArmDownCommand(2.5);
+        return m_intake.IntakeArmDownCommand(1);
     }
 
     public Command button10PressedCommand() {
