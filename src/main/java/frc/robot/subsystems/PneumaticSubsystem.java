@@ -32,6 +32,6 @@ public class PneumaticSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Is at Pressure",isAtPressure());
+        SmartDashboard.putBoolean("Is at Pressure", isAtPressure());
     }
 }

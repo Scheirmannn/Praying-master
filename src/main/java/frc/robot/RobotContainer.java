@@ -24,6 +24,7 @@ import frc.robot.subsystems.ButtonPadSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -42,6 +43,7 @@ import java.util.List;
 public class RobotContainer {
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     private final ClimberSubsystem m_Climber = new ClimberSubsystem();
+    private final PneumaticSubsystem m_Pnuematics = new PneumaticSubsystem();
     private final ShooterSubsystem m_Shooter = new ShooterSubsystem(SparkConstants.kLeftShooterCanId, SparkConstants.kRightShooterCanId, SparkConstants.kGateMotorCanId);
     private final IntakeSubsystem m_Intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
     private final ButtonPadSubsystem m_buttonPad = new ButtonPadSubsystem(m_Shooter, m_Intake, m_Climber);

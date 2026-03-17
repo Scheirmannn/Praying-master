@@ -81,7 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
         rightEncoder = rightMotor.getEncoder();
         SmartDashboard.putNumber("Current Speed", m_currentSpeed.speed);
         SmartDashboard.putNumber("Current Gate Power", m_currentGatePower.gatePower);
-        SmartDashboard.putBoolean("Shooter at speed", false);
+        SmartDashboard.putBoolean("Shooter at Speed", false);
 
     }
 
@@ -220,8 +220,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Shooter at speed", isAtSpeed());
-        SmartDashboard.putNumber("Shooter speed (MetersPerSec)", getShooterVelocity());
+        SmartDashboard.putBoolean("Shooter at Speed", isAtSpeed());
+        SmartDashboard.putNumber("Shooter Speed (MetersPerSec)", getShooterVelocity());
     }
 
 }

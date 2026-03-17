@@ -27,14 +27,14 @@ public class ButtonPadSubsystem extends SubsystemBase{
         m_climber = climber;
 
 
-        SmartDashboard.putString("Current profile", currentProfile.name());
+        SmartDashboard.putString("Current Profile", currentProfile.name());
     }
 
     public void toggleProfiles() {
         profiles[] profile = profiles.values();
         int next = (currentProfile.ordinal() + 1) % profile.length;
         currentProfile = profile[next];
-        SmartDashboard.putString("Current profile", currentProfile.name());
+        SmartDashboard.putString("Current Profile", currentProfile.name());
     }
 
     public Command button1Command() {
@@ -42,11 +42,13 @@ public class ButtonPadSubsystem extends SubsystemBase{
     }
 
     public Command button2Command() {
-        return m_climber.climbUpCommand(2);
+        //return m_climber.climbUpCommand(2);
+        return new InstantCommand();
     }
 
     public Command button3Command() {
-        return m_climber.climbDownCommand(2);
+        //return m_climber.climbDownCommand(2);
+        return new InstantCommand();
     }
 
     public Command button4PressedCommand() {
@@ -96,19 +98,36 @@ public class ButtonPadSubsystem extends SubsystemBase{
     }
     
     public Command button8Command() {
-        return m_intake.IntakeArmUpCommand(1);
+        switch (currentProfile) {
+            case PROFILE1:  return m_intake.IntakeArmUpCommand(1);
+            case PROFILE2: return m_intake.setIntakeCommand(.5);
+            default: return new InstantCommand();
+        }
+
     }
 
     public Command button9Command() {
-        return m_intake.IntakeArmDownCommand(1);
+        switch (currentProfile) {
+            case PROFILE1:  return m_intake.IntakeArmDownCommand(1);
+            case PROFILE2: return m_intake.stopIntakeCommand();
+            default: return new InstantCommand();
+        }
     }
 
     public Command button10PressedCommand() {
-        return m_intake.setIntakeCommand(.5);
+        switch (currentProfile) {
+            case PROFILE1: return m_intake.setIntakeCommand(0.5);
+            case PROFILE2: new InstantCommand();
+            default: return new InstantCommand();
+        }
     }
 
     public Command button10ReleasedCommand() {
-        return m_intake.intakeArmStopCommand();
+        switch (currentProfile) {
+            case PROFILE1: return m_intake.stopIntakeCommand();
+            case PROFILE2: new InstantCommand();
+            default: return new InstantCommand();
+        }
     }
 
 
