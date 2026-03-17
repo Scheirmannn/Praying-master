@@ -15,14 +15,13 @@ public final class Configs {
                 
                 static {
                 double nominalVoltage = 12.0;
-                double vortexVelocityFeedForward = nominalVoltage/ UtilityConstants.kVortexFreeSpeedRps;
+                double vortexVelocityFeedForward = nominalVoltage/ UtilityConstants.kVortexFreeSpeedRpm;
                 double neoVelocityFeedForward = nominalVoltage/ UtilityConstants.kNeoFreeSpeedRps;
 
                 vortexConfig
                         .idleMode(IdleMode.kCoast)
                         .smartCurrentLimit(40)
-                        .secondaryCurrentLimit(60)
-                        .closedLoopRampRate(0.5);
+                        .closedLoopRampRate(1.0);
                 vortexConfig.encoder
                         .positionConversionFactor(1)
                         .velocityConversionFactor(1);

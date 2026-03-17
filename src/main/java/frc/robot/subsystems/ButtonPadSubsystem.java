@@ -1,12 +1,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
-
-public class ButtonPadSubsystem extends SubsystemBase{
+public class ButtonPadSubsystem extends SubsystemBase {
 
     private final ShooterSubsystem m_shooter;
     private final IntakeSubsystem m_intake;
@@ -15,18 +15,14 @@ public class ButtonPadSubsystem extends SubsystemBase{
     private enum profiles {
         PROFILE1,
         PROFILE2
-
     }
 
     private profiles currentProfile = profiles.PROFILE1;
-    
-    public ButtonPadSubsystem ( ShooterSubsystem  shooter, IntakeSubsystem intake, ClimberSubsystem climber) {
-        
+
+    public ButtonPadSubsystem(ShooterSubsystem shooter, IntakeSubsystem intake, ClimberSubsystem climber) {
         m_shooter = shooter;
         m_intake = intake;
         m_climber = climber;
-
-
         SmartDashboard.putString("Current Profile", currentProfile.name());
     }
 
@@ -37,99 +33,110 @@ public class ButtonPadSubsystem extends SubsystemBase{
         SmartDashboard.putString("Current Profile", currentProfile.name());
     }
 
+    // ── Button commands ──────────────────────────────────────────
+
     public Command button1Command() {
         return new InstantCommand(() -> toggleProfiles(), this);
     }
 
     public Command button2Command() {
-        //return m_climber.climbUpCommand(2);
         return new InstantCommand();
     }
 
     public Command button3Command() {
-        //return m_climber.climbDownCommand(2);
         return new InstantCommand();
     }
 
     public Command button4PressedCommand() {
-        switch (currentProfile) {
-            case PROFILE1: return m_shooter.shooterSpinUpCommand();
-            case PROFILE2: return m_shooter.fullShootCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.shooterSpinUpCommand()); break;
+                case PROFILE2: CommandScheduler.getInstance().schedule(m_shooter.fullShootCommand()); break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button4ReleasedCommand() {
-        switch (currentProfile) {
-            case PROFILE1: return m_shooter.shooterStopCommand(); 
-            case PROFILE2: return m_shooter.dualStopCommand(); 
-            default: return new InstantCommand ();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.shooterStopCommand()); break;
+                case PROFILE2: CommandScheduler.getInstance().schedule(m_shooter.dualStopCommand()); break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button5Command() {
-        switch (currentProfile) {
-            case PROFILE1: return m_shooter.cycleShootSpeedCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.cycleShootSpeedCommand()); break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button6PressedCommand() {
-        switch (currentProfile) {
-            case PROFILE1: return m_shooter.gateStartCommand();
-            case PROFILE2: return m_shooter.gateReverseCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.gateStartCommand()); break;
+                case PROFILE2: CommandScheduler.getInstance().schedule(m_shooter.gateReverseCommand()); break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button6ReleasedCommand() {
-        switch (currentProfile) {
-            case PROFILE1: return m_shooter.gateStopCommand();
-            case PROFILE2: return m_shooter.gateStopCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() ->
+            CommandScheduler.getInstance().schedule(m_shooter.gateStopCommand()), this);
     }
 
     public Command button7Command() {
-        switch (currentProfile) {
-            case PROFILE1: return m_shooter.cycleGatePowerCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.cycleGatePowerCommand()); break;
+                default: break;
+            }
+        }, this);
     }
-    
-    public Command button8Command() {
-        switch (currentProfile) {
-            case PROFILE1:  return m_intake.IntakeArmUpCommand(1);
-            case PROFILE2: return m_intake.setIntakeCommand(.5);
-            default: return new InstantCommand();
-        }
 
+    public Command button8Command() {
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.IntakeArmUpCommand(1)); break;
+                case PROFILE2: CommandScheduler.getInstance().schedule(m_intake.setIntakeCommand(0.5)); break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button9Command() {
-        switch (currentProfile) {
-            case PROFILE1:  return m_intake.IntakeArmDownCommand(1);
-            case PROFILE2: return m_intake.stopIntakeCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.IntakeArmDownCommand(1)); break;
+                case PROFILE2: CommandScheduler.getInstance().schedule(m_intake.stopIntakeCommand()); break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button10PressedCommand() {
-        switch (currentProfile) {
-            case PROFILE1: return m_intake.setIntakeCommand(0.5);
-            case PROFILE2: new InstantCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.setIntakeCommand(0.5)); break;
+                case PROFILE2: break;
+                default: break;
+            }
+        }, this);
     }
 
     public Command button10ReleasedCommand() {
-        switch (currentProfile) {
-            case PROFILE1: return m_intake.stopIntakeCommand();
-            case PROFILE2: new InstantCommand();
-            default: return new InstantCommand();
-        }
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.stopIntakeCommand()); break;
+                case PROFILE2: break;
+                default: break;
+            }
+        }, this);
     }
-
-
-
 }
