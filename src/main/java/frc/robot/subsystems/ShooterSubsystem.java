@@ -79,7 +79,6 @@ public class ShooterSubsystem extends SubsystemBase {
         
         leftEncoder = leftMotor.getEncoder();
         rightEncoder = rightMotor.getEncoder();
-        SmartDashboard.putBoolean("Profile Locked", false);
         SmartDashboard.putNumber("Current Speed", m_currentSpeed.speed);
         SmartDashboard.putNumber("Current Gate Power", m_currentGatePower.gatePower);
 
