@@ -29,9 +29,23 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder rightEncoder;
     
     public enum speedProfiles {
-        LOW(15.0),
-        MEDIUM(20.0),
-        HIGH(30.0);
+        A(10.0),
+        B(11.0),
+        C(12.0),
+        D(13.0),
+        E(14.0),
+        F(15.0),
+        A1(16.0),
+        B1(17.0),
+        C1(18.0),
+        D1(19.0),
+        E1(20.0),
+        F1(22.0),
+        A2(24.0),
+        B2(26.0),
+        C2(28.0),
+        D2(30.0);
+
 
         public final double speed;
 
@@ -54,7 +68,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    private speedProfiles m_currentSpeed = speedProfiles.LOW;
+    private speedProfiles m_currentSpeed = speedProfiles.A;
     private gateProfiles m_currentGatePower = gateProfiles.LOW;
 
     public ShooterSubsystem(int leftMotorId, int rightMotorId, int gateMotorId) {
