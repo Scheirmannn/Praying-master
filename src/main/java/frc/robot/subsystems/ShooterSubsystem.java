@@ -201,7 +201,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command shooterStopCommand() {
         return new InstantCommand(() -> {
-            shooterStop();
+            setShooterVelocity(0);
         }, this);
     }
     
