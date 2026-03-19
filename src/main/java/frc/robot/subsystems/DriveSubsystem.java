@@ -3,11 +3,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.DriveConstants;
@@ -36,10 +36,9 @@ public class DriveSubsystem extends SubsystemBase {
       SparkConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-  // Track heading ourselves using module states
   private double m_headingRad = Math.PI;
 
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
+  private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
       DriveConstants.kDriveKinematics,
       new Rotation2d(m_headingRad),
       new SwerveModulePosition[] {
@@ -47,13 +46,14 @@ public class DriveSubsystem extends SubsystemBase {
           m_frontRight.getPosition(),
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
-      });
+      },
+      new Pose2d()
+  );
 
   public DriveSubsystem() {
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
   }
 
-  // Estimate heading from module states using kinematics
   private void updateHeading(double dt) {
     ChassisSpeeds speeds = DriveConstants.kDriveKinematics.toChassisSpeeds(
         m_frontLeft.getState(),
@@ -68,7 +68,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     updateHeading(0.02);
 
-    m_odometry.update(
+    m_poseEstimator.update(
         new Rotation2d(m_headingRad),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -79,12 +79,16 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return m_poseEstimator.getEstimatedPosition();
+  }
+
+  public SwerveDrivePoseEstimator getPoseEstimator() {
+    return m_poseEstimator;
   }
 
   public void resetOdometry(Pose2d pose) {
     m_headingRad = pose.getRotation().getRadians();
-    m_odometry.resetPosition(
+    m_poseEstimator.resetPosition(
         new Rotation2d(m_headingRad),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -138,7 +142,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void zeroHeading() {
-    m_headingRad = 0.0;
+    m_headingRad = Math.PI;
   }
 
   public double getHeading() {
@@ -152,7 +156,7 @@ public class DriveSubsystem extends SubsystemBase {
         m_rearLeft.getState(),
         m_rearRight.getState()
     );
-    return Math.toDegrees(speeds.omegaRadiansPerSecond) * 
+    return Math.toDegrees(speeds.omegaRadiansPerSecond) *
         (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
 }
