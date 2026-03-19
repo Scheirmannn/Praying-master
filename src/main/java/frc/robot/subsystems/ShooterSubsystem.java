@@ -100,7 +100,7 @@ public class ShooterSubsystem extends SubsystemBase {
         speedProfiles[] profile = speedProfiles.values();
         int next = (m_currentSpeed.ordinal() + 1) % profile.length;
         m_currentSpeed = profile[next];
-        SmartDashboard.putNumber("Current Speed", m_currentSpeed.speed);
+        SmartDashboard.putString("Current Speed", m_currentSpeed.name());
     }
 
     public void cycleGatePowers() {
@@ -237,6 +237,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putBoolean("Shooter at Speed", isAtSpeed());
         SmartDashboard.putNumber("Shooter Speed (MetersPerSec)", getShooterVelocity());
+        SmartDashboard.putNumber("Ideal Speed", getTargetSpeed());
     }
 
 }
