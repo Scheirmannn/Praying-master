@@ -26,6 +26,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
@@ -43,10 +44,10 @@ import java.util.List;
 public class RobotContainer {
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     private final ClimberSubsystem m_Climber = new ClimberSubsystem();
-    private final PneumaticSubsystem m_Pnuematics = new PneumaticSubsystem();
     private final ShooterSubsystem m_Shooter = new ShooterSubsystem(SparkConstants.kLeftShooterCanId, SparkConstants.kRightShooterCanId, SparkConstants.kGateMotorCanId);
     private final IntakeSubsystem m_Intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
     private final ButtonPadSubsystem m_buttonPad = new ButtonPadSubsystem(m_Shooter, m_Intake, m_Climber);
+    private final VisionSubsystem m_vison = new VisionSubsystem(m_robotDrive.getPoseEstimator());
 
     // The driver's controller
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -56,7 +57,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-
+        m_Shooter.setVision(m_vison);
         // Configure the button bindings
         configureButtonBindings();
 

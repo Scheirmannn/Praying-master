@@ -27,24 +27,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final RelativeEncoder leftEncoder;
     private final RelativeEncoder rightEncoder;
+
+    private VisionSubsystem m_vision = null;
     
     public enum speedProfiles {
-        A(10.0),
-        B(11.0),
-        C(12.0),
-        D(13.0),
-        E(14.0),
-        F(15.0),
-        A1(16.0),
-        B1(17.0),
-        C1(18.0),
-        D1(19.0),
-        E1(20.0),
-        F1(22.0),
-        A2(24.0),
-        B2(26.0),
-        C2(28.0),
-        D2(30.0);
+        LOW(15.0),
+        MID(18.0),
+        HIGH(22.0),
+        AUTO(24.0);
 
 
         public final double speed;
@@ -68,7 +58,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    private speedProfiles m_currentSpeed = speedProfiles.A;
+    private speedProfiles m_currentSpeed = speedProfiles.LOW;
     private gateProfiles m_currentGatePower = gateProfiles.LOW;
 
     public ShooterSubsystem(int leftMotorId, int rightMotorId, int gateMotorId) {
@@ -102,6 +92,9 @@ public class ShooterSubsystem extends SubsystemBase {
     
     //   cycling methods + vars
 
+    public void setVision(VisionSubsystem vision) {
+        m_vision = vision;
+    }
    
     public void cycleSpeeds() {
         speedProfiles[] profile = speedProfiles.values();
@@ -126,14 +119,15 @@ public class ShooterSubsystem extends SubsystemBase {
         return m_currentGatePower.gatePower;
     }
 
-    //   Other vars
+    public double getTargetSpeed() {
+        if (m_currentSpeed == speedProfiles.AUTO && m_vision != null) {
+            return m_vision.idealShooterSpeed();
+        }
 
-    public double idealShooterSpeed(double distance) {
-        if (distance < 120.0) return 15.0;
-        if (distance > 240.0) return 28.0;
-        
-        return 0.05625 *(distance - 120.0) + 15.5;
+        return m_currentSpeed.speed;
     }
+
+    //   Other vars
 
     public double getShooterVelocity() {
         double avgRPM = (Math.abs(leftEncoder.getVelocity()) + Math.abs(rightEncoder.getVelocity())) / 2;
@@ -178,7 +172,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //   Basic Commands
 
     public Command shooterSpinUpCommand() {
-        return new RunCommand(() -> setShooterVelocity(currentSpeed()));
+        return new RunCommand(() -> setShooterVelocity(getTargetSpeed()));
     }
 
     public Command gateStartCommand() {

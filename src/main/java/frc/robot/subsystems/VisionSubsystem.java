@@ -123,10 +123,11 @@ public class VisionSubsystem extends SubsystemBase {
         return m_camera.getLatestResult().hasTargets();
     }
 
-    public double calculateShootSpeed() {
-        double distanceInches = getDistanceToTarget();
-        if (distanceInches < 120) return 15.0;
-        if (distanceInches > 220) return 28.0;
-        return 0.05625 * (distanceInches - 120) + 15.5;
+    public double idealShooterSpeed() {
+        double distance = getDistanceToTarget();
+        if (distance < 120.0) return 15.0;
+        if (distance > 240.0) return 28.0;
+        
+        return 0.05625 *(distance - 120.0) + 15.5;
     }
 }
