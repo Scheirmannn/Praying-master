@@ -10,7 +10,7 @@ public class ButtonPadSubsystem extends SubsystemBase {
 
     private final ShooterSubsystem m_shooter;
     private final IntakeSubsystem m_intake;
-    private final ClimberSubsystem m_climber;
+    //private final ClimberSubsystem m_climber;
 
     private enum profiles {
         PROFILE1,
@@ -22,7 +22,7 @@ public class ButtonPadSubsystem extends SubsystemBase {
     public ButtonPadSubsystem(ShooterSubsystem shooter, IntakeSubsystem intake, ClimberSubsystem climber) {
         m_shooter = shooter;
         m_intake = intake;
-        m_climber = climber;
+        //m_climber = climber;
         SmartDashboard.putString("Current Profile", currentProfile.name());
     }
 

@@ -32,9 +32,10 @@ public class ShooterSubsystem extends SubsystemBase {
     
     public enum speedProfiles {
         LOW(15.0),
-        MID(18.0),
-        HIGH(22.0),
-        AUTO(24.0);
+        MID(17.0),
+        HIGH(19.0),
+        MAX(24.0),
+        AUTO(16.0);
 
 
         public final double speed;
@@ -83,7 +84,7 @@ public class ShooterSubsystem extends SubsystemBase {
         
         leftEncoder = leftMotor.getEncoder();
         rightEncoder = rightMotor.getEncoder();
-        SmartDashboard.putNumber("Current Speed", m_currentSpeed.speed);
+        SmartDashboard.putString("Current Speed", m_currentSpeed.name());
         SmartDashboard.putNumber("Current Gate Power", m_currentGatePower.gatePower);
         SmartDashboard.putBoolean("Shooter at Speed", false);
 
@@ -120,11 +121,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double getTargetSpeed() {
-        if (m_currentSpeed == speedProfiles.AUTO && m_vision != null) {
-            return m_vision.idealShooterSpeed();
+        if (m_currentSpeed == speedProfiles.AUTO && m_vision != null && m_vision.hasTarget()) {
+            return (Math.round(m_vision.calculateShootSpeed() * 2.0) / (2.0));
         }
 
-        return m_currentSpeed.speed;
+        return currentSpeed();
     }
 
     //   Other vars
@@ -132,12 +133,12 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getShooterVelocity() {
         double avgRPM = (Math.abs(leftEncoder.getVelocity()) + Math.abs(rightEncoder.getVelocity())) / 2;
         double radPerSec = avgRPM * 2 * Math.PI / 60;
-        return radPerSec * UtilityConstants.kShooterRadius;
+        return (Math.round(radPerSec * UtilityConstants.kShooterRadius *2) / (2.0));
 
     }
     
     public boolean isAtSpeed() {
-        return getShooterVelocity() >= (currentSpeed() * 0.95);
+        return getShooterVelocity() >= (getTargetSpeed() * 0.95);
 
     }
 
@@ -172,7 +173,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //   Basic Commands
 
     public Command shooterSpinUpCommand() {
-        return new RunCommand(() -> setShooterVelocity(getTargetSpeed()));
+        return new RunCommand(() -> setShooterVelocity(getTargetSpeed()), this);
     }
 
     public Command gateStartCommand() {

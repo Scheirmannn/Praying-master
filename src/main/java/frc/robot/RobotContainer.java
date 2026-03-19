@@ -24,7 +24,6 @@ import frc.robot.subsystems.ButtonPadSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.PneumaticSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,8 +45,8 @@ public class RobotContainer {
     private final ClimberSubsystem m_Climber = new ClimberSubsystem();
     private final ShooterSubsystem m_Shooter = new ShooterSubsystem(SparkConstants.kLeftShooterCanId, SparkConstants.kRightShooterCanId, SparkConstants.kGateMotorCanId);
     private final IntakeSubsystem m_Intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
-    private final ButtonPadSubsystem m_buttonPad = new ButtonPadSubsystem(m_Shooter, m_Intake, m_Climber);
-    private final VisionSubsystem m_vison = new VisionSubsystem();
+    private final ButtonPadSubsystem m_ButtonPad = new ButtonPadSubsystem(m_Shooter, m_Intake, m_Climber);
+    private final VisionSubsystem m_Vison = new VisionSubsystem();
 
     // The driver's controller
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -57,7 +56,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_Shooter.setVision(m_vison);
+        m_Shooter.setVision(m_Vison);
         // Configure the button bindings
         configureButtonBindings();
 
@@ -87,38 +86,41 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
+        new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value)
+            .onTrue(m_robotDrive.alignToTargetCommand(m_Vison));
+        
         new JoystickButton(m_oppController, 1)
-            .onTrue(m_buttonPad.button1Command());
+            .onTrue(m_ButtonPad.button1Command());
        
         new JoystickButton(m_oppController, 2)
-            .onTrue(m_buttonPad.button2Command());
+            .onTrue(m_ButtonPad.button2Command());
         
         new JoystickButton(m_oppController, 3)
-            .onTrue(m_buttonPad.button3Command());
+            .onTrue(m_ButtonPad.button3Command());
         
         new JoystickButton(m_oppController, 4)
-            .whileTrue(m_buttonPad.button4PressedCommand())
-            .onFalse(m_buttonPad.button4ReleasedCommand());
+            .whileTrue(m_ButtonPad.button4PressedCommand())
+            .onFalse(m_ButtonPad.button4ReleasedCommand());
         
         new JoystickButton(m_oppController, 5)
-            .onTrue(m_buttonPad.button5Command());
+            .onTrue(m_ButtonPad.button5Command());
 
         new JoystickButton(m_oppController, 6)
-            .whileTrue(m_buttonPad.button6PressedCommand())
-            .onFalse(m_buttonPad.button6ReleasedCommand());
+            .whileTrue(m_ButtonPad.button6PressedCommand())
+            .onFalse(m_ButtonPad.button6ReleasedCommand());
         
         new JoystickButton(m_oppController, 7)
-            .onTrue(m_buttonPad.button7Command());
+            .onTrue(m_ButtonPad.button7Command());
 
         new JoystickButton(m_oppController, 8)
-            .onTrue(m_buttonPad.button8Command());
+            .onTrue(m_ButtonPad.button8Command());
         
         new JoystickButton(m_oppController, 9)
-            .onTrue(m_buttonPad.button9Command());
+            .onTrue(m_ButtonPad.button9Command());
         
         new JoystickButton(m_oppController, 10)
-            .whileTrue(m_buttonPad.button10PressedCommand())
-            .onFalse(m_buttonPad.button10ReleasedCommand());
+            .whileTrue(m_ButtonPad.button10PressedCommand())
+            .onFalse(m_ButtonPad.button10ReleasedCommand());
         
         }
 
