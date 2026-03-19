@@ -47,7 +47,7 @@ public class RobotContainer {
     private final ShooterSubsystem m_Shooter = new ShooterSubsystem(SparkConstants.kLeftShooterCanId, SparkConstants.kRightShooterCanId, SparkConstants.kGateMotorCanId);
     private final IntakeSubsystem m_Intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
     private final ButtonPadSubsystem m_buttonPad = new ButtonPadSubsystem(m_Shooter, m_Intake, m_Climber);
-    private final VisionSubsystem m_vison = new VisionSubsystem(m_robotDrive.getPoseEstimator());
+    private final VisionSubsystem m_vison = new VisionSubsystem();
 
     // The driver's controller
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
