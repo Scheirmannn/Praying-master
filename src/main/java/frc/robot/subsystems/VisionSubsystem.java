@@ -20,20 +20,19 @@ public class VisionSubsystem extends SubsystemBase {
 
     // ── Constants ─────────────────────────────────────────────────
 
-    // TODO: Replace with actual camera name configured in PhotonVision UI
-    private static final String CAMERA_NAME = "YOUR_CAMERA_NAME";
+    private static final String CAMERA_NAME = "LeftShooterCam";
 
     // TODO: Replace with actual camera position relative to robot center
     // x = forward/back in meters (positive = forward)
     // y = left/right in meters (positive = left)
     // z = height in meters
     private static final Transform3d CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(0.0, 0.0, 0.5),
+        new Translation3d(11.5* 0.0254, 8.0 * 0.0254, 20.5 * 0.0254),
         new Rotation3d(0, Math.toRadians(-15), 0)
     );
 
     // TODO: Replace with actual robot half length in inches
-    private static final double CENTER_TO_BUMPER_INCHES = 14.0;
+    private static final double CENTER_TO_BUMPER_INCHES = 11.5;
 
     // Field length
     private static final double FIELD_LENGTH_METERS = 651 * 0.0254; // 16.535m
