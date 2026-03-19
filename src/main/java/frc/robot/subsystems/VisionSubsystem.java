@@ -1,133 +1,117 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
 
     // ── Constants ─────────────────────────────────────────────────
 
-    // TODO: Replace with actual camera name configured in PhotonVision UI
-    private static final String CAMERA_NAME = "YOUR_CAMERA_NAME";
+    private static final String CAMERA_NAME = "LeftShooterCam";
 
-    // TODO: Replace with actual camera position relative to robot center
-    // x = forward/back in meters (positive = forward)
-    // y = left/right in meters (positive = left)
-    // z = height in meters
-    private static final Transform3d CAMERA_TO_ROBOT = new Transform3d(
-        new Translation3d(0.0, 0.0, 0.5),
-        new Rotation3d(0, Math.toRadians(-15), 0)
-    );
+    // Distance from camera lens to intake bumper in inches
+    private static final double CENTER_TO_BUMPER_INCHES = 11.5;
 
-    // TODO: Replace with actual robot half length in inches
-    private static final double CENTER_TO_BUMPER_INCHES = 14.0;
-
-    // Field length
-    private static final double FIELD_LENGTH_METERS = 651 * 0.0254; // 16.535m
-
-    // Red target - 158in from right, 182in up
-    private static final double RED_TARGET_X = 12.522;
-    private static final double RED_TARGET_Y = 4.623;
-
-    // Blue target - mirrored
-    private static final double BLUE_TARGET_X = 4.013;
-    private static final double BLUE_TARGET_Y = 4.623;
+    // TODO: measure how far left or right camera is from robot center in inches
+    // positive = camera is to the left of center
+    private static final double CAMERA_OFFSET_INCHES = 8.0;
 
     // ── Hardware ──────────────────────────────────────────────────
 
     private final PhotonCamera m_camera;
-    private final PhotonPoseEstimator m_photonEstimator;
-    private final SwerveDrivePoseEstimator m_poseEstimator;
-    private final Field2d m_field = new Field2d();
 
-    public VisionSubsystem(SwerveDrivePoseEstimator poseEstimator) {
-        m_poseEstimator = poseEstimator;
-
+    public VisionSubsystem() {
         m_camera = new PhotonCamera(CAMERA_NAME);
-
-        AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
-
-        m_photonEstimator = new PhotonPoseEstimator(
-            fieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            CAMERA_TO_ROBOT
-        );
-
-        SmartDashboard.putData("Vision Field", m_field);
         SmartDashboard.putNumber("Distance to Target (in)", 0);
         SmartDashboard.putBoolean("Target Visible", false);
+        SmartDashboard.putNumber("Target Yaw", 0);
+        SmartDashboard.putNumber("Calculated Shoot Speed", 0);
     }
 
     // ── Periodic ─────────────────────────────────────────────────
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("Target Visible", hasTarget());
+        SmartDashboard.putNumber("Distance to Target (in)", getDistanceToTarget());
+        SmartDashboard.putNumber("Target Yaw", getTargetYaw());
+        SmartDashboard.putNumber("Calculated Shoot Speed", calculateShootSpeed());
+    }
+
+    // ── Target filtering ─────────────────────────────────────────
+
+    private PhotonTrackedTarget getValidTarget() {
         var result = m_camera.getLatestResult();
+        if (!result.hasTargets()) return null;
 
-        SmartDashboard.putBoolean("Target Visible", result.hasTargets());
-
-        if (result.hasTargets()) {
-            m_photonEstimator.update(result).ifPresent(estimatedPose -> {
-                m_poseEstimator.addVisionMeasurement(
-                    estimatedPose.estimatedPose.toPose2d(),
-                    estimatedPose.timestampSeconds
-                );
-            });
+        int[] validTagIds;
+        if (DriverStation.getAlliance().isPresent() &&
+            DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+            validTagIds = new int[]{25, 26};
+        } else {
+            validTagIds = new int[]{9, 10};
         }
 
-        m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
-        SmartDashboard.putNumber("Distance to Target (in)", getDistanceToTarget());
+        for (var target : result.getTargets()) {
+            for (int id : validTagIds) {
+                if (target.getFiducialId() == id) {
+                    return target;
+                }
+            }
+        }
+        return null;
     }
 
     // ── Public methods ────────────────────────────────────────────
 
-    public Pose2d getEstimatedPose() {
-        return m_poseEstimator.getEstimatedPosition();
+    public boolean hasTarget() {
+        return getValidTarget() != null;
     }
 
     public double getDistanceToTarget() {
-        Pose2d pose = m_poseEstimator.getEstimatedPosition();
+        var target = getValidTarget();
+        if (target == null) return -1;
 
-        double targetX;
-        double targetY;
+        double distanceMeters = target.getBestCameraToTarget()
+            .getTranslation()
+            .getNorm();
 
-        if (DriverStation.getAlliance().isPresent() &&
-            DriverStation.getAlliance().get() == Alliance.Blue) {
-            targetX = BLUE_TARGET_X;
-            targetY = BLUE_TARGET_Y;
-        } else {
-            targetX = RED_TARGET_X;
-            targetY = RED_TARGET_Y;
-        }
-
-        double dx = targetX - pose.getX();
-        double dy = targetY - pose.getY();
-        double distanceInches = Math.sqrt(dx * dx + dy * dy) * 39.3701;
-        return distanceInches + CENTER_TO_BUMPER_INCHES;
+        return (distanceMeters * 39.3701) + CENTER_TO_BUMPER_INCHES;
     }
 
-    public boolean hasTarget() {
-        return m_camera.getLatestResult().hasTargets();
+    // Yaw to target adjusted for camera offset
+    // Returns degrees - negative = target is to the left, positive = to the right
+    public double getTargetYaw() {
+        var target = getValidTarget();
+        if (target == null) return 0;
+
+        // raw yaw from camera
+        double rawYaw = target.getYaw();
+
+        // adjust for camera not being centered
+        // camera offset creates an angular offset we need to correct for
+        double distanceInches = getDistanceToTarget();
+        if (distanceInches < 0) return rawYaw;
+
+        double offsetCorrectionDeg = Math.toDegrees(
+            Math.atan2(CAMERA_OFFSET_INCHES, distanceInches)
+        );
+
+        return rawYaw - offsetCorrectionDeg;
     }
 
-    public double idealShooterSpeed() {
-        double distance = getDistanceToTarget();
-        if (distance < 120.0) return 15.0;
-        if (distance > 240.0) return 28.0;
-        
-        return 0.05625 *(distance - 120.0) + 15.5;
+    public boolean isAligned() {
+        return Math.abs(getTargetYaw()) < 2.0; // within 2 degrees
+    }
+
+    public double calculateShootSpeed() {
+        double distanceInches = getDistanceToTarget();
+        if (distanceInches < 0) return 20.0;
+        if (distanceInches < 120) return 15.0;
+        if (distanceInches > 220) return 28.0;
+        return 0.05625 * (distanceInches - 120) + 15.5;
     }
 }

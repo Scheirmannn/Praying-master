@@ -3,16 +3,18 @@ package frc.robot.subsystems;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SparkConstants;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -38,7 +40,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private double m_headingRad = Math.PI;
 
-  private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
+  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
       new Rotation2d(m_headingRad),
       new SwerveModulePosition[] {
@@ -46,9 +48,7 @@ public class DriveSubsystem extends SubsystemBase {
           m_frontRight.getPosition(),
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
-      },
-      new Pose2d()
-  );
+      });
 
   public DriveSubsystem() {
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
@@ -68,7 +68,7 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     updateHeading(0.02);
 
-    m_poseEstimator.update(
+    m_odometry.update(
         new Rotation2d(m_headingRad),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -79,16 +79,12 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return m_poseEstimator.getEstimatedPosition();
-  }
-
-  public SwerveDrivePoseEstimator getPoseEstimator() {
-    return m_poseEstimator;
+    return m_odometry.getPoseMeters();
   }
 
   public void resetOdometry(Pose2d pose) {
     m_headingRad = pose.getRotation().getRadians();
-    m_poseEstimator.resetPosition(
+    m_odometry.resetPosition(
         new Rotation2d(m_headingRad),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -158,5 +154,20 @@ public class DriveSubsystem extends SubsystemBase {
     );
     return Math.toDegrees(speeds.omegaRadiansPerSecond) *
         (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  // ── Vision align command ──────────────────────────────────────
+
+  public Command alignToTargetCommand(VisionSubsystem vision) {
+    return new RunCommand(() -> {
+      if (vision.hasTarget()) {
+        double yaw = vision.getTargetYaw();
+        double rotSpeed = yaw * 0.02;
+        rotSpeed = Math.max(-0.4, Math.min(0.4, rotSpeed));
+        drive(0, 0, rotSpeed, false);
+      } else {
+        drive(0, 0, 0, false);
+      }
+    }, this);
   }
 }
