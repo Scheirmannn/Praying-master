@@ -74,7 +74,7 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value)
-            .onTrue(m_robotDrive.alignToTargetCommand(m_Vison));
+            .whileTrue(m_robotDrive.alignToTargetCommand(m_Vison));
         
         new JoystickButton(m_oppController, 1)
             .onTrue(m_ButtonPad.button1Command());

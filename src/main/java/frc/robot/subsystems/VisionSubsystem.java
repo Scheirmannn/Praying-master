@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -16,7 +15,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private static final String CAMERA_NAME = "LeftShooterCam";
 
-    //comp is 24 in
+    // comp is 24 in
     private static final double CORRECTION_OFFSET = 0.0;
 
     private static final double CENTER_TO_BUMPER_INCHES = 11.5;
@@ -31,6 +30,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Distance to Target (in)", 0);
         SmartDashboard.putBoolean("Target Visible", false);
         SmartDashboard.putNumber("Target Yaw", 0);
+        SmartDashboard.putNumber("Alignment Yaw", 0);
         SmartDashboard.putNumber("Calculated Shoot Speed", 0);
         HttpCamera m_stream = new HttpCamera(CAMERA_NAME, "http://10.97.90.11:1182/stream.mjpg");
         CameraServer.addCamera(m_stream);
@@ -43,6 +43,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Target Visible", hasTarget());
         SmartDashboard.putNumber("Distance to Target (in)", getDistanceToTarget());
         SmartDashboard.putNumber("Target Yaw", getTargetYaw());
+        SmartDashboard.putNumber("Alignment Yaw", getAlignmentYaw());
         SmartDashboard.putNumber("Calculated Shoot Speed", calculateShootSpeed());
     }
 
@@ -87,17 +88,12 @@ public class VisionSubsystem extends SubsystemBase {
         return (distanceMeters * 39.3701) + CENTER_TO_BUMPER_INCHES + CORRECTION_OFFSET;
     }
 
-    // Yaw to target adjusted for camera offset
-    // Returns degrees - negative = target is to the left, positive = to the right
+    // Yaw adjusted for camera offset - use for shooting
     public double getTargetYaw() {
         var target = getValidTarget();
         if (target == null) return 0;
 
-        // raw yaw from camera
         double rawYaw = target.getYaw();
-
-        // adjust for camera not being centered
-        // camera offset creates an angular offset we need to correct for
         double distanceInches = getDistanceToTarget();
         if (distanceInches < 0) return rawYaw;
 
@@ -108,8 +104,15 @@ public class VisionSubsystem extends SubsystemBase {
         return rawYaw - offsetCorrectionDeg;
     }
 
+    // Raw yaw with no offset correction - use for alignment
+    public double getAlignmentYaw() {
+        var target = getValidTarget();
+        if (target == null) return 0;
+        return target.getYaw();
+    }
+
     public boolean isAligned() {
-        return Math.abs(getTargetYaw()) < 2.0; // within 2 degrees
+        return hasTarget() && Math.abs(getAlignmentYaw()) < 2.0;
     }
 
     public double calculateShootSpeed() {
