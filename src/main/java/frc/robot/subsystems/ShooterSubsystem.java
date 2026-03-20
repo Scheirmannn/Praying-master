@@ -112,6 +112,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
+    public void setSpeedProfile(speedProfiles profile) {
+        m_currentSpeed = profile;
+        SmartDashboard.putString("Current Speed", m_currentSpeed.name());
+    }
+
     public double currentSpeed() {
         return m_currentSpeed.speed;
     }

@@ -1,8 +1,12 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -12,11 +16,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     private static final String CAMERA_NAME = "LeftShooterCam";
 
-    // Distance from camera lens to intake bumper in inches
-    private static final double CENTER_TO_BUMPER_INCHES = 11.5;
+    //comp is 24 in
+    private static final double CORRECTION_OFFSET = 0.0;
 
-    // TODO: measure how far left or right camera is from robot center in inches
-    // positive = camera is to the left of center
+    private static final double CENTER_TO_BUMPER_INCHES = 11.5;
     private static final double CAMERA_OFFSET_INCHES = 8.0;
 
     // ── Hardware ──────────────────────────────────────────────────
@@ -29,6 +32,8 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Target Visible", false);
         SmartDashboard.putNumber("Target Yaw", 0);
         SmartDashboard.putNumber("Calculated Shoot Speed", 0);
+        HttpCamera m_stream = new HttpCamera(CAMERA_NAME, "http://10.97.90.11:1182/stream.mjpg");
+        CameraServer.addCamera(m_stream);
     }
 
     // ── Periodic ─────────────────────────────────────────────────
@@ -79,7 +84,7 @@ public class VisionSubsystem extends SubsystemBase {
             .getTranslation()
             .getNorm();
 
-        return (distanceMeters * 39.3701) + CENTER_TO_BUMPER_INCHES;
+        return (distanceMeters * 39.3701) + CENTER_TO_BUMPER_INCHES + CORRECTION_OFFSET;
     }
 
     // Yaw to target adjusted for camera offset
