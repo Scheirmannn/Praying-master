@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SparkConstants;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -38,11 +40,11 @@ public class DriveSubsystem extends SubsystemBase {
       SparkConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-  private double m_headingRad = Math.PI;
+  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
-      new Rotation2d(m_headingRad),
+      m_gyro.getRotation2d(),
       new SwerveModulePosition[] {
           m_frontLeft.getPosition(),
           m_frontRight.getPosition(),
@@ -52,24 +54,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   public DriveSubsystem() {
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
-  }
-
-  private void updateHeading(double dt) {
-    ChassisSpeeds speeds = DriveConstants.kDriveKinematics.toChassisSpeeds(
-        m_frontLeft.getState(),
-        m_frontRight.getState(),
-        m_rearLeft.getState(),
-        m_rearRight.getState()
-    );
-    m_headingRad += speeds.omegaRadiansPerSecond * dt;
+    // Wait for gyro to calibrate
+    m_gyro.reset();
   }
 
   @Override
   public void periodic() {
-    updateHeading(0.02);
-
     m_odometry.update(
-        new Rotation2d(m_headingRad),
+        m_gyro.getRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -83,9 +75,8 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    m_headingRad = pose.getRotation().getRadians();
     m_odometry.resetPosition(
-        new Rotation2d(m_headingRad),
+        m_gyro.getRotation2d(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -103,7 +94,7 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                new Rotation2d(m_headingRad))
+                m_gyro.getRotation2d())
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
@@ -138,36 +129,39 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void zeroHeading() {
-    m_headingRad = Math.PI;
+    m_gyro.reset();
   }
 
   public double getHeading() {
-    return Math.toDegrees(m_headingRad);
+    return m_gyro.getRotation2d().getDegrees();
   }
 
   public double getTurnRate() {
-    ChassisSpeeds speeds = DriveConstants.kDriveKinematics.toChassisSpeeds(
-        m_frontLeft.getState(),
-        m_frontRight.getState(),
-        m_rearLeft.getState(),
-        m_rearRight.getState()
-    );
-    return Math.toDegrees(speeds.omegaRadiansPerSecond) *
-        (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+    return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
 
   // ── Vision align command ──────────────────────────────────────
 
   public Command alignToTargetCommand(VisionSubsystem vision) {
     return new RunCommand(() -> {
-      if (vision.hasTarget()) {
-        double yaw = vision.getTargetYaw();
-        double rotSpeed = yaw * 0.02;
-        rotSpeed = Math.max(-0.4, Math.min(0.4, rotSpeed));
-        drive(0, 0, rotSpeed, false);
-      } else {
+      if (!vision.hasTarget()) {
         drive(0, 0, 0, false);
+        return;
       }
+      double yaw = vision.getAlignmentYaw();
+      System.out.println("Alignment Yaw: " + yaw);
+
+      if (Math.abs(yaw) < 2.0) {
+        drive(0, 0, 0, false);
+        return;
+      }
+
+      double rotSpeed = yaw * 0.04;
+      rotSpeed = Math.max(-0.4, Math.min(0.4, rotSpeed));
+      if (Math.abs(rotSpeed) < 0.05) {
+        rotSpeed = Math.copySign(0.05, rotSpeed);
+      }
+      drive(0, 0, rotSpeed, false);
     }, this);
   }
 }

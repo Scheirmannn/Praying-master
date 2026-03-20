@@ -16,7 +16,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final String CAMERA_NAME = "LeftShooterCam";
 
     // comp is 24 in
-    private static final double CORRECTION_OFFSET = 0.0;
+    private static final double CORRECTION_OFFSET = 23.5;
 
     private static final double CENTER_TO_BUMPER_INCHES = 11.5;
     private static final double CAMERA_OFFSET_INCHES = 8.0;
