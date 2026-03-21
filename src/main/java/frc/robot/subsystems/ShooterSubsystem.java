@@ -33,8 +33,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum speedProfiles {
         LOW(15.0),
         MID(17.0),
-        HIGH(19.0),
-        MAX(24.0),
+        HIGH(20.0),
+        MAX(28.0),
         AUTO(16.0);
 
 

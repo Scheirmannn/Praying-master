@@ -18,6 +18,8 @@ import frc.robot.Constants.SparkConstants;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import choreo.trajectory.SwerveSample;
+
 public class DriveSubsystem extends SubsystemBase {
 
   private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
@@ -86,6 +88,15 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
+  public void followTrajectory(SwerveSample sample) {
+      drive(
+          sample.vx / DriveConstants.kMaxSpeedMetersPerSecond,
+          sample.vy / DriveConstants.kMaxSpeedMetersPerSecond,
+          sample.omega / DriveConstants.kMaxAngularSpeed,
+          false
+      );
+  }
+  
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
@@ -94,7 +105,7 @@ public class DriveSubsystem extends SubsystemBase {
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                m_gyro.getRotation2d())
+                m_gyro.getRotation2d().plus(Rotation2d.fromDegrees(180)))
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
     SwerveDriveKinematics.desaturateWheelSpeeds(

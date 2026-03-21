@@ -35,8 +35,18 @@ public class ButtonPadSubsystem extends SubsystemBase {
 
     // ── Button commands ──────────────────────────────────────────
 
-    public Command button1Command() {
-        return new InstantCommand(() -> toggleProfiles(), this);
+    public Command button1PressedCommand() {
+        return new InstantCommand(() -> {
+            switch (currentProfile) {
+                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.gateReverseCommand()); break;
+                default: break;
+            }
+        }, this);
+    }
+
+    public Command button1ReleasedCommand() {
+        return new InstantCommand(() ->
+            CommandScheduler.getInstance().schedule(m_shooter.gateStopCommand()), this);
     }
 
     public Command button2Command() {
@@ -56,10 +66,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
                     m_currentShooterCommand = m_shooter.shooterSpinUpCommand();
                     CommandScheduler.getInstance().schedule(m_currentShooterCommand); 
                     break;
-                case PROFILE2: 
-                    m_currentShooterCommand = m_shooter.fullShootCommand();
-                    CommandScheduler.getInstance().schedule(m_currentShooterCommand); 
-                    break;
                 default: break;
             }
         }, this);
@@ -73,7 +79,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
             }
             switch (currentProfile) {
                 case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.shooterStopCommand()); break;
-                case PROFILE2: CommandScheduler.getInstance().schedule(m_shooter.dualStopCommand()); break;
                 default: break;
             }
         }, this);
@@ -92,7 +97,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             switch (currentProfile) {
                 case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.gateStartCommand()); break;
-                case PROFILE2: CommandScheduler.getInstance().schedule(m_shooter.gateReverseCommand()); break;
                 default: break;
             }
         }, this);
@@ -116,7 +120,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             switch (currentProfile) {
                 case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.IntakeArmUpCommand(1)); break;
-                case PROFILE2: CommandScheduler.getInstance().schedule(m_intake.setIntakeCommand(0.5)); break;
                 default: break;
             }
         }, this);
@@ -126,7 +129,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             switch (currentProfile) {
                 case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.IntakeArmDownCommand(1)); break;
-                case PROFILE2: CommandScheduler.getInstance().schedule(m_intake.stopIntakeCommand()); break;
                 default: break;
             }
         }, this);
@@ -136,7 +138,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             switch (currentProfile) {
                 case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.setIntakeCommand(0.5)); break;
-                case PROFILE2: break;
                 default: break;
             }
         }, this);
@@ -146,7 +147,6 @@ public class ButtonPadSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             switch (currentProfile) {
                 case PROFILE1: CommandScheduler.getInstance().schedule(m_intake.stopIntakeCommand()); break;
-                case PROFILE2: break;
                 default: break;
             }
         }, this);
