@@ -38,8 +38,8 @@ public class ButtonPadSubsystem extends SubsystemBase {
 
     public Command button1PressedCommand() {
         return new RunCommand(() -> {
-            m_shooter.setGatePower(-0.5);
-            m_intake.setIntakeVelocity(0.5);
+            m_shooter.setGatePower(-0.1);
+            m_intake.setIntakeVelocity(0.33);
         }, m_shooter, m_intake);
 
     }
