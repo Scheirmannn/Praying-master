@@ -10,8 +10,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SparkConstants;
@@ -151,28 +149,4 @@ public class DriveSubsystem extends SubsystemBase {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
 
-  // ── Vision align command ──────────────────────────────────────
-
-  public Command alignToTargetCommand(VisionSubsystem vision) {
-    return new RunCommand(() -> {
-      if (!vision.hasTarget()) {
-        drive(0, 0, 0, false);
-        return;
-      }
-      double yaw = vision.getAlignmentYaw();
-      System.out.println("Alignment Yaw: " + yaw);
-
-      if (Math.abs(yaw) < 2.0) {
-        drive(0, 0, 0, false);
-        return;
-      }
-
-      double rotSpeed = yaw * 0.04;
-      rotSpeed = Math.max(-0.4, Math.min(0.4, rotSpeed));
-      if (Math.abs(rotSpeed) < 0.05) {
-        rotSpeed = Math.copySign(0.05, rotSpeed);
-      }
-      drive(0, 0, rotSpeed, false);
-    }, this);
-  }
 }

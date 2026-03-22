@@ -34,7 +34,7 @@ public final class Configs {
                 
                 neoConfig
                         .idleMode(IdleMode.kCoast)
-                        .smartCurrentLimit(40);
+                        .smartCurrentLimit(25);
                 neoConfig.closedLoop
                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                         .pid(0.0002,0.0,0.0)
@@ -58,7 +58,7 @@ public final class Configs {
 
                 drivingConfig
                         .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(50);
+                        .smartCurrentLimit(30);
                 drivingConfig.encoder
                         .positionConversionFactor(drivingFactor) // meters
                         .velocityConversionFactor(drivingFactor / 60.0); // meters per second
@@ -72,7 +72,7 @@ public final class Configs {
 
                 turningConfig
                         .idleMode(IdleMode.kBrake)
-                        .smartCurrentLimit(20);
+                        .smartCurrentLimit(15);
                 turningConfig.absoluteEncoder
                         // Invert the turning encoder, since the output shaft rotates in the opposite
                         // direction of the steering motor in the MAXSwerve Module.

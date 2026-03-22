@@ -28,14 +28,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder leftEncoder;
     private final RelativeEncoder rightEncoder;
 
-    private VisionSubsystem m_vision = null;
     
     public enum speedProfiles {
         LOW(15.0),
         MID(17.0),
         HIGH(20.0),
-        MAX(28.0),
-        AUTO(16.0);
+        MAX(28.0);
 
 
         public final double speed;
@@ -93,9 +91,6 @@ public class ShooterSubsystem extends SubsystemBase {
     
     //   cycling methods + vars
 
-    public void setVision(VisionSubsystem vision) {
-        m_vision = vision;
-    }
    
     public void cycleSpeeds() {
         speedProfiles[] profile = speedProfiles.values();
@@ -125,14 +120,6 @@ public class ShooterSubsystem extends SubsystemBase {
         return m_currentGatePower.gatePower;
     }
 
-    public double getTargetSpeed() {
-        if (m_currentSpeed == speedProfiles.AUTO && m_vision != null && m_vision.hasTarget()) {
-            return (Math.round(m_vision.calculateShootSpeed() * 2.0) / (2.0));
-        }
-
-        return currentSpeed();
-    }
-
     //   Other vars
 
     public double getShooterVelocity() {
@@ -143,7 +130,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
     
     public boolean isAtSpeed() {
-        return getShooterVelocity() >= (getTargetSpeed() * 0.95);
+        return getShooterVelocity() >= (currentSpeed() * 0.95);
 
     }
 
@@ -178,7 +165,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //   Basic Commands
 
     public Command shooterSpinUpCommand() {
-        return new RunCommand(() -> setShooterVelocity(getTargetSpeed()), this);
+        return new RunCommand(() -> setShooterVelocity(currentSpeed()), this);
     }
 
     public Command gateStartCommand() {
@@ -243,7 +230,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putBoolean("Shooter at Speed", isAtSpeed());
         SmartDashboard.putNumber("Shooter Speed (MetersPerSec)", getShooterVelocity());
-        SmartDashboard.putNumber("Ideal Speed", getTargetSpeed());
+        SmartDashboard.putNumber("Ideal Speed", currentSpeed());
     }
 
 }

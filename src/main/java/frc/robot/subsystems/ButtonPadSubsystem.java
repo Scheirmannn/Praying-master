@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -36,17 +37,18 @@ public class ButtonPadSubsystem extends SubsystemBase {
     // ── Button commands ──────────────────────────────────────────
 
     public Command button1PressedCommand() {
-        return new InstantCommand(() -> {
-            switch (currentProfile) {
-                case PROFILE1: CommandScheduler.getInstance().schedule(m_shooter.gateReverseCommand()); break;
-                default: break;
-            }
-        }, this);
+        return new RunCommand(() -> {
+            m_shooter.setGatePower(-0.5);
+            m_intake.setIntakeVelocity(0.5);
+        }, m_shooter, m_intake);
+
     }
 
     public Command button1ReleasedCommand() {
-        return new InstantCommand(() ->
-            CommandScheduler.getInstance().schedule(m_shooter.gateStopCommand()), this);
+        return new InstantCommand(() -> {
+                m_shooter.setGatePower(0);
+                m_intake.stop();
+        }, m_shooter, m_intake);
     }
 
     public Command button2Command() {
