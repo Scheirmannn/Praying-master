@@ -11,16 +11,33 @@ public class CombinationSubsystem extends SubsystemBase {
     private final ShooterSubsystem m_shooter;
     private final IntakeSubsystem m_intake;
     private final HopperSubsystem m_hopper;
+    private final ClimberSubsystem m_climber;
 
     private boolean gateReversed = false;
 
-    public CombinationSubsystem(ShooterSubsystem shooter, IntakeSubsystem intake, HopperSubsystem hopper) {
+    public CombinationSubsystem(ShooterSubsystem shooter, IntakeSubsystem intake, HopperSubsystem hopper, ClimberSubsystem climber) {
         m_shooter = shooter;
         m_intake = intake;
         m_hopper = hopper;
+        m_climber = climber;
     }
     //--Basic Commands
 
+    public Command hopperUpCommand() {
+        return m_hopper.hopperUpCommand(2);
+    }
+
+    public Command hopperDownCommand() {
+        return m_hopper.hopperDownCommand(2);
+    }
+
+    public Command climberUpCommand() {
+        return m_climber.climbUpCommand(2);
+    }
+
+    public Command climberDownCommand() {
+        return m_climber.climbDownCommand(2);
+    }
 
     public Command cycleSpeedCommand() {
         return m_shooter.cycleShootSpeedCommand();
@@ -33,7 +50,16 @@ public class CombinationSubsystem extends SubsystemBase {
     public Command armDownCommand() {
         return m_intake.IntakeArmDownCommand(1);
     }
+
+
     //--Combined Commands
+
+    public Command startingCommand() {
+        return Commands.sequence(
+            armDownCommand(),
+            hopperDownCommand()
+        );
+    }
 
     public Command toggleGateReverseCommand() {
         gateReversed = !gateReversed;
@@ -46,7 +72,7 @@ public class CombinationSubsystem extends SubsystemBase {
 
     public Command shrinkCommand() {
         return Commands.sequence (
-            m_intake.IntakeArmUpCommand(1),
+            armUpCommand(),
             m_hopper.hopperDownCommand(2)
         );
 
@@ -85,7 +111,7 @@ public class CombinationSubsystem extends SubsystemBase {
         if (gateReversed) {
             return new InstantCommand(() -> {
                 m_shooter.gateStop();
-                m_shooter.shooterStop();
+                m_shooter.setShooterVelocity(0);
                 m_shooter.setGatePower(-0.05);
             }, m_shooter);
         }

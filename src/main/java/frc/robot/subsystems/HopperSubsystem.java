@@ -13,13 +13,17 @@ public class HopperSubsystem extends SubsystemBase {
 
     private final DoubleSolenoid climberSolenoid;
 
-    public boolean m_out = false;
+    public boolean m_out = true;
 
     public HopperSubsystem() {
         climberSolenoid = new DoubleSolenoid(13, PneumaticsModuleType.CTREPCM, 2, 3);
 
     }
-    
+
+    public boolean HopperUp() {
+        return m_out;
+    }
+
     public void setHopperOut() {
         climberSolenoid.set(DoubleSolenoid.Value.kForward);
         m_out = true;

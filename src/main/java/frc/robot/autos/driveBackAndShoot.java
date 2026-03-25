@@ -27,8 +27,6 @@ public class driveBackAndShoot extends Command {
     public void initialize() {
         m_autoSequence = Commands.sequence(
             new InstantCommand(() -> m_intake.setArmDown()),
-
-            
         
             new RunCommand(() -> m_drive.drive(-0.3, 0, 0, false), m_drive)
                 .withTimeout(2.0),

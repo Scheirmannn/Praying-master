@@ -14,32 +14,32 @@ public final class Configs {
                 public static final SparkMaxConfig neoConfig = new SparkMaxConfig();
                 
                 static {
-                double nominalVoltage = 12.0;
-                double vortexVelocityFeedForward = nominalVoltage/ UtilityConstants.kVortexFreeSpeedRpm;
-                double neoVelocityFeedForward = nominalVoltage/ UtilityConstants.kNeoFreeSpeedRps;
+                        double nominalVoltage = 12.0;
+                        double vortexVelocityFeedForward = nominalVoltage/ UtilityConstants.kVortexFreeSpeedRpm;
+                        double neoVelocityFeedForward = nominalVoltage/ UtilityConstants.kNeoFreeSpeedRps;
 
-                vortexConfig
-                        .idleMode(IdleMode.kCoast)
-                        .smartCurrentLimit(40)
-                        .closedLoopRampRate(1.0);
-                vortexConfig.encoder
-                        .positionConversionFactor(1)
-                        .velocityConversionFactor(1);
-                vortexConfig.closedLoop
-                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                       // no idea what to put for pid chat said ts tho
-                        .pid(0.0002, 0.0, 0.0)
-                        .outputRange(-1, 1)
-                        .feedForward.kV(vortexVelocityFeedForward);
-                
-                neoConfig
-                        .idleMode(IdleMode.kCoast)
-                        .smartCurrentLimit(25);
-                neoConfig.closedLoop
-                        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                        .pid(0.0002,0.0,0.0)
-                        .outputRange(-1, 1)
-                        .feedForward.kV(neoVelocityFeedForward);
+                        vortexConfig
+                                .idleMode(IdleMode.kCoast)
+                                .smartCurrentLimit(30)
+                                .closedLoopRampRate(1.0);
+                        vortexConfig.encoder
+                                .positionConversionFactor(1)
+                                .velocityConversionFactor(1);
+                        vortexConfig.closedLoop
+                                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                        // no idea what to put for pid chat said ts tho
+                                .pid(0.0002, 0.0, 0.0)
+                                .outputRange(-1, 1)
+                                .feedForward.kV(vortexVelocityFeedForward);
+                        
+                        neoConfig
+                                .idleMode(IdleMode.kCoast)
+                                .smartCurrentLimit(25);
+                        neoConfig.closedLoop
+                                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                                .pid(0.0002,0.0,0.0)
+                                .outputRange(-1, 1)
+                                .feedForward.kV(neoVelocityFeedForward);
                 }
 
 

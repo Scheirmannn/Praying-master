@@ -19,6 +19,10 @@ public class ClimberSubsystem extends SubsystemBase {
         climberSolenoid = new DoubleSolenoid(13, PneumaticsModuleType.CTREPCM, 6, 7);
 
     }
+
+    public boolean climbed() {
+        return m_climbed;
+    }
     
     public void setClimbUp() {
         climberSolenoid.set(DoubleSolenoid.Value.kForward);

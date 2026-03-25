@@ -37,7 +37,10 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Intake arm up", false);
     
     }
-    
+
+    public boolean armUp() {
+        return m_intakeUp;
+    }
 
     public void setArmDown() {
         intakeSolenoid.set(DoubleSolenoid.Value.kForward);
