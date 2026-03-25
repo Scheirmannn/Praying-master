@@ -34,7 +34,6 @@ public class IntakeSubsystem extends SubsystemBase {
         rightMotor.configure(Configs.Utility.neoConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
-        Configs.Utility.neoConfig.inverted(false);
         SmartDashboard.putBoolean("Intake arm up", false);
     
     }

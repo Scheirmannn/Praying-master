@@ -165,7 +165,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //   Basic Commands
 
     public Command shooterSpinUpCommand() {
-        return new RunCommand(() -> setShooterVelocity(currentSpeed()), this);
+        return new RunCommand(() -> setShooterVelocity(currentSpeed()));
     }
 
     public Command gateStartCommand() {
@@ -173,8 +173,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    public Command gateReverseCommand() {
-        return new InstantCommand(() -> setGatePower(-currentGatePower()), this);
+    public Command gateReverseCommand(double gatePower) {
+        return new InstantCommand(() -> setGatePower(-gatePower), this);
 
     }
 
