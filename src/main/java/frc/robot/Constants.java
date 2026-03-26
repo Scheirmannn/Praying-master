@@ -14,6 +14,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 
 
@@ -133,20 +135,45 @@ public final class Constants {
   }
 
   public static final class Vision {
-    public static final Transform3d kRobotToCam = new Transform3d(
-        new Translation3d(
-            Units.inchesToMeters(6),
-            Units.inchesToMeters(0),
-            Units.inchesToMeters(18)
-        ),
-        new Rotation3d(
-            Units.degreesToRadians(0),
-            Units.degreesToRadians(-25),
-            Units.degreesToRadians(0)
-        )
-    );
-
-    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
-    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+  
+      // Camera names — must match what you set in the PhotonVision dashboard
+      public static final String kFrontLeftCameraName  = "frontLeftCam";
+      public static final String kFrontRightCameraName = "frontRightCam";
+  
+      // Physical mounting angle of each camera relative to robot forward
+      // Positive = rotated left, Negative = rotated right
+      // Measure this carefully — it directly affects alignment accuracy
+      public static final double kFrontLeftCameraYawDegrees  =  30.0;
+      public static final double kFrontRightCameraYawDegrees = -30.0;
+  
+      // Lateral offset of each camera from the robot center (metres)
+      // Positive = left of center, Negative = right of center
+      public static final double kFrontLeftCameraLateralOffsetMeters  =  0.2;
+      public static final double kFrontRightCameraLateralOffsetMeters = -0.2;
+  
+      // Camera positions relative to robot center as Transform3d
+      // (x forward, y left, z up) — used by PhotonPoseEstimator
+      public static final Transform3d kRobotToFrontLeftCamera = new Transform3d(
+          new Translation3d(0.3, 0.2, 0.2),
+          new Rotation3d(0, 0, Math.toRadians(30)));
+  
+      public static final Transform3d kRobotToFrontRightCamera = new Transform3d(
+          new Translation3d(0.3, -0.2, 0.2),
+          new Rotation3d(0, 0, Math.toRadians(-30)));
+  
+      // AprilTag field layout — change year to match your season
+      public static final AprilTagFieldLayout kTagLayout =
+          AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+  
+      // Alliance target tag IDs — edit to match your game's field layout
+      public static final int[] kRedAllianceTagIds  = new int[]{1, 2, 3, 4};
+      public static final int[] kBlueAllianceTagIds = new int[]{5, 6, 7, 8};
+  
+      // Standard deviations for pose estimation trust
+      // Lower = trust vision more, Higher = trust vision less
+      public static final Matrix<N3, N1> kSingleTagStdDevs =
+          VecBuilder.fill(4, 4, 8);
+      public static final Matrix<N3, N1> kMultiTagStdDevs  =
+          VecBuilder.fill(0.5, 0.5, 1);
   }
 }

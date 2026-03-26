@@ -55,7 +55,7 @@ public class RobotContainer {
                 m_robotDrive);
 
         m_autoChooser.setDefaultOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));   
-        m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_shooter, m_intake, m_combo, m_autoFactory));
+        m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_shooter, m_combo, m_autoFactory));
         m_autoChooser.addOption("goDepot", new goDepot(m_robotDrive, m_shooter, m_intake, m_autoFactory));
         m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_autoFactory));
         m_autoChooser.addOption("Do Nothing", new InstantCommand());

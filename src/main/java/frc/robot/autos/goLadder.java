@@ -9,26 +9,23 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotContainer.AutoWithPose;
 import frc.robot.subsystems.CombinationSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class goLadder extends Command implements AutoWithPose {
 
     private final DriveSubsystem m_drive;
     private final ShooterSubsystem m_shooter;
-    private final IntakeSubsystem m_intake;
     private final CombinationSubsystem m_combo;
     private final AutoFactory m_autoFactory;
 
     private Command m_autoSequence;
 
-    public goLadder(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, CombinationSubsystem combo, AutoFactory autoFactory) {
+    public goLadder(DriveSubsystem drive, ShooterSubsystem shooter, CombinationSubsystem combo, AutoFactory autoFactory) {
         m_drive = drive;
         m_shooter = shooter;
-        m_intake = intake;
         m_combo = combo;
         m_autoFactory = autoFactory;
-        addRequirements(drive, shooter, intake);
+        addRequirements(drive, shooter);
     }
 
     @Override

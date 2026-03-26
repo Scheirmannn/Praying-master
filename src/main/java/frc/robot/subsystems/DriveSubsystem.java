@@ -3,17 +3,23 @@ package frc.robot.subsystems;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SparkConstants;
@@ -46,23 +52,25 @@ public class DriveSubsystem extends SubsystemBase {
 
   public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
-  // Sim
   private double m_simGyroAngle = 0.0;
   private ChassisSpeeds m_lastChassisSpeeds = new ChassisSpeeds();
 
-  // Odometry initialized in constructor so getGyroRotation() is safe to call
-  private final SwerveDriveOdometry m_odometry;
+  private final SwerveDrivePoseEstimator m_poseEstimator;
 
   private final PIDController m_xController = new PIDController(11.0, 0, 0.1);
   private final PIDController m_yController = new PIDController(11.0, 0, 0.1);
-  private final PIDController m_rotController = new PIDController(10.0, 0, 0.2);
+  private final PIDController m_rotController = new PIDController(70.5, 0, 0.3);
+
+  private final PIDController m_visionAlignController = new PIDController(0.04, 0, 0.001);
 
   public DriveSubsystem() {
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
     m_gyro.reset();
-    m_rotController.enableContinuousInput(-Math.PI, Math.PI);
 
-    m_odometry = new SwerveDriveOdometry(
+    m_rotController.enableContinuousInput(-Math.PI, Math.PI);
+    m_visionAlignController.setTolerance(1.0);
+
+    m_poseEstimator = new SwerveDrivePoseEstimator(
         DriveConstants.kDriveKinematics,
         getGyroRotation(),
         new SwerveModulePosition[] {
@@ -70,7 +78,10 @@ public class DriveSubsystem extends SubsystemBase {
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
-        });
+        },
+        new Pose2d(),
+        VecBuilder.fill(0.05, 0.05, 0.05),
+        VecBuilder.fill(0.5, 0.5, 0.5));
   }
 
   private Rotation2d getGyroRotation() {
@@ -82,7 +93,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_odometry.update(
+    m_poseEstimator.update(
         getGyroRotation(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -108,33 +119,12 @@ public class DriveSubsystem extends SubsystemBase {
       m_simGyroAngle += 360;
   }
 
-  public void log() {
-    Pose2d pose = getPose();
-
-    SmartDashboard.putNumberArray("Robot Pose", new double[] {
-        pose.getX(),
-        pose.getY(),
-        pose.getRotation().getRadians()
-    });
-
-    SmartDashboard.putNumberArray("Swerve States", new double[] {
-        m_frontLeft.getState().angle.getRadians(),
-        m_frontLeft.getState().speedMetersPerSecond,
-        m_frontRight.getState().angle.getRadians(),
-        m_frontRight.getState().speedMetersPerSecond,
-        m_rearLeft.getState().angle.getRadians(),
-        m_rearLeft.getState().speedMetersPerSecond,
-        m_rearRight.getState().angle.getRadians(),
-        m_rearRight.getState().speedMetersPerSecond
-    });
-  }
-
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return m_poseEstimator.getEstimatedPosition();
   }
 
   public void resetOdometry(Pose2d pose) {
-    m_odometry.resetPosition(
+    m_poseEstimator.resetPosition(
         getGyroRotation(),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
@@ -144,26 +134,19 @@ public class DriveSubsystem extends SubsystemBase {
         },
         pose);
   }
-  
-  public void stopModules() {
-    m_lastChassisSpeeds = new ChassisSpeeds();
-    m_frontLeft.setDesiredState(new SwerveModuleState(0, m_frontLeft.getState().angle));
-    m_frontRight.setDesiredState(new SwerveModuleState(0, m_frontRight.getState().angle));
-    m_rearLeft.setDesiredState(new SwerveModuleState(0, m_rearLeft.getState().angle));
-    m_rearRight.setDesiredState(new SwerveModuleState(0, m_rearRight.getState().angle));
+
+  public void addVisionMeasurement(Pose2d pose, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+    m_poseEstimator.addVisionMeasurement(pose, timestampSeconds, stdDevs);
   }
 
   public void followTrajectory(SwerveSample sample) {
-    // Flip sample if on Red alliance
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
       sample = sample.flipped();
     }
 
     SmartDashboard.putNumberArray("Choreo Target Pose", new double[] {
-        sample.x,
-        sample.y,
-        sample.heading
+        sample.x, sample.y, sample.heading
     });
 
     Pose2d pose = getPose();
@@ -192,7 +175,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(swerveModuleStates[3]);
 
     SmartDashboard.putNumber("Choreo/TargetOmegaRadPerSec", sample.omega);
-    
+
     if (Math.abs(sample.vx) < 0.01 && Math.abs(sample.vy) < 0.01 && Math.abs(sample.omega) < 0.01) {
       m_lastChassisSpeeds = new ChassisSpeeds();
     }
@@ -205,15 +188,45 @@ public class DriveSubsystem extends SubsystemBase {
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                getGyroRotation().plus(Rotation2d.fromDegrees(180)))
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                xSpeedDelivered, ySpeedDelivered, rotDelivered, getGyroRotation())
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
     m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
+  public void alignToTarget(double yawErrorDegrees) {
+    double rot = m_visionAlignController.calculate(yawErrorDegrees, 0);
+    drive(0, 0, rot, false);
+    SmartDashboard.putNumber("Vision/AlignOutput", rot);
+  }
+
+  public boolean isAligned() {
+    return m_visionAlignController.atSetpoint();
+  }
+
+  public Command alignToTagCommand(Vision vision) {
+    return new RunCommand(() -> {
+      var yaw = vision.getYawToAllianceTarget();
+      if (yaw.isPresent()) {
+        alignToTarget(yaw.getAsDouble());
+      } else {
+        stopModules();
+      }
+    }, this).until(this::isAligned);
+  }
+
+  public void stopModules() {
+    m_lastChassisSpeeds = new ChassisSpeeds();
+    m_frontLeft.setDesiredState(new SwerveModuleState(0, m_frontLeft.getState().angle));
+    m_frontRight.setDesiredState(new SwerveModuleState(0, m_frontRight.getState().angle));
+    m_rearLeft.setDesiredState(new SwerveModuleState(0, m_rearLeft.getState().angle));
+    m_rearRight.setDesiredState(new SwerveModuleState(0, m_rearRight.getState().angle));
   }
 
   public void setX() {
@@ -257,4 +270,24 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
+  public void log() {
+    Pose2d pose = getPose();
+
+    SmartDashboard.putNumberArray("Robot Pose", new double[] {
+        pose.getX(),
+        pose.getY(),
+        pose.getRotation().getRadians()
+    });
+
+    SmartDashboard.putNumberArray("Swerve States", new double[] {
+        m_frontLeft.getState().angle.getRadians(),
+        m_frontLeft.getState().speedMetersPerSecond,
+        m_frontRight.getState().angle.getRadians(),
+        m_frontRight.getState().speedMetersPerSecond,
+        m_rearLeft.getState().angle.getRadians(),
+        m_rearLeft.getState().speedMetersPerSecond,
+        m_rearRight.getState().angle.getRadians(),
+        m_rearRight.getState().speedMetersPerSecond
+    });
+  }
 }
