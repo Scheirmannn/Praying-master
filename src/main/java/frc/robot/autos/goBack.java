@@ -16,16 +16,14 @@ public class goBack extends Command {
     private final ShooterSubsystem m_shooter;
     private final IntakeSubsystem m_intake;
     private final AutoFactory m_autoFactory;
-    private final String m_pathName;
 
     private Command m_autoSequence;
 
-    public goBack(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, AutoFactory autoFactory, String pathName) {
+    public goBack(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, AutoFactory autoFactory) {
         m_drive = drive;
         m_shooter = shooter;
         m_intake = intake;
         m_autoFactory = autoFactory;
-        m_pathName = pathName;
         addRequirements(drive, shooter, intake);
     }
 
@@ -38,15 +36,15 @@ public class goBack extends Command {
         m_drive.resetOdometry(getStartingPose());
 
         m_autoSequence = Commands.sequence(
-                new InstantCommand(() -> m_intake.setArmDown()),
+            new InstantCommand(() -> m_intake.setArmDown()),
 
-                m_autoFactory.trajectoryCmd(m_pathName),
+            m_autoFactory.trajectoryCmd("goBack"),
+            new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
 
-                new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
-
-                m_shooter.fullShootCommand().withTimeout(8.0),
-
-                m_shooter.dualStopCommand());
+            m_shooter.fullShootCommand().withTimeout(8.0),
+            m_shooter.dualStopCommand()
+        );
+        
         m_autoSequence.schedule();
     }
 

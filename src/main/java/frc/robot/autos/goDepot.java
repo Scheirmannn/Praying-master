@@ -10,22 +10,20 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class goNeutral extends Command {
+public class goDepot extends Command {
 
     private final DriveSubsystem m_drive;
     private final ShooterSubsystem m_shooter;
     private final IntakeSubsystem m_intake;
     private final AutoFactory m_autoFactory;
-    private final String m_pathName;
 
     private Command m_autoSequence;
 
-    public goNeutral(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, AutoFactory autoFactory, String pathName) {
+    public goDepot(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, AutoFactory autoFactory) {
         m_drive = drive;
         m_shooter = shooter;
         m_intake = intake;
         m_autoFactory = autoFactory;
-        m_pathName = pathName;
         addRequirements(drive, shooter, intake);
     }
 
@@ -38,15 +36,28 @@ public class goNeutral extends Command {
         m_drive.resetOdometry(getStartingPose());
 
         m_autoSequence = Commands.sequence(
-                new InstantCommand(() -> m_intake.setArmDown()),
+            m_autoFactory.trajectoryCmd("goDepotPt1"),
+            new InstantCommand(() -> m_drive.stopModules(), m_drive),
+            
+            new InstantCommand(() -> m_intake.setArmDown()),
+            
+            m_shooter.fullShootCommand().withTimeout(4.0),
+            m_shooter.dualStopCommand(),
+            
+            m_autoFactory.trajectoryCmd("goDepotPt2"),
+            new InstantCommand(() -> m_drive.stopModules(), m_drive),
+            
+            Commands.race(
+                m_shooter.fullShootCommand().withTimeout(6.0),
+                m_intake.setIntakeCommand(.67)
+            ),
+            
+            m_intake.stopIntakeCommand(),
+            m_shooter.dualStopCommand()
+        );
 
-                m_autoFactory.trajectoryCmd(m_pathName),
 
-                new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
 
-                m_shooter.fullShootCommand().withTimeout(8.0),
-
-                m_shooter.dualStopCommand());
         m_autoSequence.schedule();
     }
 
