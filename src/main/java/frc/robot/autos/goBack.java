@@ -6,11 +6,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.RobotContainer.AutoWithPose;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class goBack extends Command {
+public class goBack extends Command implements AutoWithPose {
 
     private final DriveSubsystem m_drive;
     private final ShooterSubsystem m_shooter;
@@ -26,8 +27,9 @@ public class goBack extends Command {
         m_autoFactory = autoFactory;
         addRequirements(drive, shooter, intake);
     }
-
-    public static Pose2d getStartingPose() {
+    
+    @Override
+    public Pose2d getStartingPose() {
         return new Pose2d(4.0, 4.0, new Rotation2d());
     }
 
@@ -39,7 +41,7 @@ public class goBack extends Command {
             new InstantCommand(() -> m_intake.setArmDown()),
 
             m_autoFactory.trajectoryCmd("goBack"),
-            new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
+            new InstantCommand(() -> m_drive.stopModules(), m_drive),
 
             m_shooter.fullShootCommand().withTimeout(8.0),
             m_shooter.dualStopCommand()

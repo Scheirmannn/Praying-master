@@ -9,25 +9,31 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotContainer.AutoWithPose;
 import frc.robot.subsystems.CombinationSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
-public class goNeutralRight extends Command implements AutoWithPose {
+public class goLadder extends Command implements AutoWithPose {
 
     private final DriveSubsystem m_drive;
+    private final ShooterSubsystem m_shooter;
+    private final IntakeSubsystem m_intake;
     private final CombinationSubsystem m_combo;
     private final AutoFactory m_autoFactory;
 
     private Command m_autoSequence;
 
-    public goNeutralRight(DriveSubsystem drive, CombinationSubsystem combo, AutoFactory autoFactory) {
+    public goLadder(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, CombinationSubsystem combo, AutoFactory autoFactory) {
         m_drive = drive;
+        m_shooter = shooter;
+        m_intake = intake;
         m_combo = combo;
         m_autoFactory = autoFactory;
-        addRequirements(drive);  // combo subsystems handle their own requirements
+        addRequirements(drive, shooter, intake);
     }
 
     @Override
     public Pose2d getStartingPose() {
-        return new Pose2d(3.5, 5.8, new Rotation2d());
+        return new Pose2d(3.5, 3.7, new Rotation2d());
     }
 
     @Override
@@ -35,21 +41,18 @@ public class goNeutralRight extends Command implements AutoWithPose {
         m_drive.resetOdometry(getStartingPose());
 
         m_autoSequence = Commands.sequence(
-            m_combo.startingCommand(),
+            m_combo.armDownCommand(),
+            m_combo.hopperDownCommand(),
+            m_combo.climberUpCommand(),
+
+            m_autoFactory.trajectoryCmd("goLadder"),
+            new InstantCommand(() -> m_drive.stopModules(), m_drive),
                 
-            m_autoFactory.trajectoryCmd("goNeutralRightPt1"),
-            new InstantCommand(() -> m_drive.stopModules(), m_drive),
-
+            m_combo.climberDownCommand(),
             m_combo.completeShoot().withTimeout(4),
-            m_combo.completeStop(),
+            m_combo.completeStop()
+        );
 
-            Commands.race(
-                m_combo.gateReverseAndIntakeCommand(),
-                m_autoFactory.trajectoryCmd("goNeutralRightPt2")
-            ),
-               
-            new InstantCommand(() -> m_drive.stopModules(), m_drive),
-            m_combo.gateAndIntakeStopCommand());
 
         m_autoSequence.schedule();
     }
@@ -57,8 +60,9 @@ public class goNeutralRight extends Command implements AutoWithPose {
     @Override
     public void end(boolean interrupted) {
         if (m_autoSequence != null)
-            m_autoSequence. cancel();
+            m_autoSequence.cancel();
         m_drive.drive(0, 0, 0, false);
+        m_shooter.dualStopCommand().schedule();
     }
 
     @Override

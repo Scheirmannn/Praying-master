@@ -2,6 +2,7 @@ package frc.robot;
 
 import choreo.auto.AutoFactory;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -9,6 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.autos.goBack;
 import frc.robot.autos.goDepot;
+import frc.robot.autos.goLadder;
+import frc.robot.autos.goNeutralRight;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CombinationSubsystem;
@@ -31,6 +34,10 @@ public class RobotContainer {
     private final CombinationSubsystem m_combo = new CombinationSubsystem(m_shooter, m_intake, m_hopper, m_climber);
 
     private AutoFactory m_autoFactory;
+    
+    public interface AutoWithPose {
+        Pose2d getStartingPose();
+    }
 
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
     XboxController m_oppController = new XboxController(OIConstants.kDriverControllerPort + 1);
@@ -47,8 +54,10 @@ public class RobotContainer {
                 true,
                 m_robotDrive);
 
-        m_autoChooser.setDefaultOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));        
+        m_autoChooser.setDefaultOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));   
+        m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_shooter, m_intake, m_combo, m_autoFactory));
         m_autoChooser.addOption("goDepot", new goDepot(m_robotDrive, m_shooter, m_intake, m_autoFactory));
+        m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_autoFactory));
         m_autoChooser.addOption("Do Nothing", new InstantCommand());
         SmartDashboard.putData("Auto Chooser", m_autoChooser);
 
@@ -117,6 +126,9 @@ public class RobotContainer {
     public void applySimStartingPose() {
         if (!RobotBase.isSimulation())
             return;
-        m_robotDrive.setSimStartingPose(goBack.getStartingPose());
+        Command selected = m_autoChooser.getSelected();
+        if (selected instanceof AutoWithPose auto) {
+            m_robotDrive.setSimStartingPose(auto.getStartingPose());
+        }
     }
 }

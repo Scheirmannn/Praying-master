@@ -28,7 +28,7 @@ public class CombinationSubsystem extends SubsystemBase {
     }
 
     public Command hopperDownCommand() {
-        return m_hopper.hopperDownCommand(2);
+        return m_hopper.hopperDownCommand(1);
     }
 
     public Command climberUpCommand() {
