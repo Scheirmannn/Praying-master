@@ -19,6 +19,7 @@ import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -29,11 +30,13 @@ public class RobotContainer {
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     private final HopperSubsystem m_hopper = new HopperSubsystem();
     private final ClimberSubsystem m_climber = new ClimberSubsystem();
+    //private final Vision m_vision = new Vision(m_robotDrive::addVisionMeasurement);
     private final ShooterSubsystem m_shooter = new ShooterSubsystem(SparkConstants.kLeftShooterCanId, SparkConstants.kRightShooterCanId, SparkConstants.kGateMotorCanId);
     private final IntakeSubsystem m_intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
     private final CombinationSubsystem m_combo = new CombinationSubsystem(m_shooter, m_intake, m_hopper, m_climber);
 
     private AutoFactory m_autoFactory;
+    
     
     public interface AutoWithPose {
         Pose2d getStartingPose();
@@ -47,6 +50,8 @@ public class RobotContainer {
     public boolean fieldRelative = true;
 
     public RobotContainer() {
+        //m_shooter.useVision(m_vision);
+
         m_autoFactory = new AutoFactory(
                 m_robotDrive::getPose,
                 m_robotDrive::resetOdometry,
@@ -57,7 +62,7 @@ public class RobotContainer {
         m_autoChooser.setDefaultOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));   
         m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_shooter, m_combo, m_autoFactory));
         m_autoChooser.addOption("goDepot", new goDepot(m_robotDrive, m_shooter, m_intake, m_autoFactory));
-        m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_autoFactory));
+        m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_shooter, m_autoFactory));
         m_autoChooser.addOption("Do Nothing", new InstantCommand());
         SmartDashboard.putData("Auto Chooser", m_autoChooser);
 

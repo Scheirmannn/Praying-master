@@ -59,7 +59,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final PIDController m_xController = new PIDController(11.0, 0, 0.1);
   private final PIDController m_yController = new PIDController(11.0, 0, 0.1);
-  private final PIDController m_rotController = new PIDController(70.5, 0, 0.3);
+  private final PIDController m_rotController = new PIDController(10.0, 0, 0.2);
 
   private final PIDController m_visionAlignController = new PIDController(0.04, 0, 0.001);
 

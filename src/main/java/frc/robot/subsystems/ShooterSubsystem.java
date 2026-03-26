@@ -138,7 +138,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command shooterSpinUpCommand() {
-        return new RunCommand(() -> setShooterVelocity(resolveTargetSpeed()), this);
+        return new RunCommand(() -> setShooterVelocity(resolveTargetSpeed()));
     }
 
     public Command gateStartCommand() {
@@ -168,6 +168,15 @@ public class ShooterSubsystem extends SubsystemBase {
         return new InstantCommand(() -> {
             gateStop();
             shooterStop();
+            enableVisionSpeed(false);
+        }, this);
+    }
+
+    public Command dualStopVisionCommand() {
+        return new InstantCommand(() -> {
+            gateStop();
+            shooterStop();
+            enableVisionSpeed(false);
         }, this);
     }
 
@@ -180,8 +189,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command fullShootVisionCommand() {
         return Commands.sequence(
                 new InstantCommand(() -> enableVisionSpeed(true), this),
-                fullShootCommand(),
-                new InstantCommand(() -> enableVisionSpeed(false), this));
+                fullShootCommand());
     }
 
     public Command cycleShootSpeedCommand() {

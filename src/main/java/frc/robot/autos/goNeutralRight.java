@@ -9,18 +9,21 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotContainer.AutoWithPose;
 import frc.robot.subsystems.CombinationSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class goNeutralRight extends Command implements AutoWithPose {
 
     private final DriveSubsystem m_drive;
     private final CombinationSubsystem m_combo;
+    private final ShooterSubsystem m_shooter;
     private final AutoFactory m_autoFactory;
 
     private Command m_autoSequence;
 
-    public goNeutralRight(DriveSubsystem drive, CombinationSubsystem combo, AutoFactory autoFactory) {
+    public goNeutralRight(DriveSubsystem drive, CombinationSubsystem combo, ShooterSubsystem shooter, AutoFactory autoFactory) {
         m_drive = drive;
         m_combo = combo;
+        m_shooter = shooter;
         m_autoFactory = autoFactory;
         addRequirements(drive);  // combo subsystems handle their own requirements
     }
@@ -43,13 +46,21 @@ public class goNeutralRight extends Command implements AutoWithPose {
             m_combo.completeShoot().withTimeout(4),
             m_combo.completeStop(),
 
+            m_autoFactory.trajectoryCmd("goNeutralRightPt2"),
+            new InstantCommand(() -> m_drive.stopModules(), m_drive),
+        
+            m_combo.hopperUpCommand(),
+
             Commands.race(
                 m_combo.gateReverseAndIntakeCommand(),
-                m_autoFactory.trajectoryCmd("goNeutralRightPt2")
+                m_autoFactory.trajectoryCmd("goNeutralRightPt3")         
             ),
-               
+                  
             new InstantCommand(() -> m_drive.stopModules(), m_drive),
-            m_combo.gateAndIntakeStopCommand());
+
+            m_combo.gateAndIntakeStopCommand(),
+            m_shooter.fullShootCommand().withTimeout(4),
+            m_shooter.dualStopCommand());
 
         m_autoSequence.schedule();
     }
