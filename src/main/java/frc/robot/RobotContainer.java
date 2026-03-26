@@ -1,10 +1,14 @@
 package frc.robot;
 
+import choreo.auto.AutoFactory;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SparkConstants;
-import frc.robot.autos.driveBackAndShoot;
+import frc.robot.autos.goBack;
+import frc.robot.autos.goNeutral;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CombinationSubsystem;
@@ -26,12 +30,27 @@ public class RobotContainer {
     private final IntakeSubsystem m_intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
     private final CombinationSubsystem m_combo = new CombinationSubsystem(m_shooter, m_intake, m_hopper, m_climber);
 
+    private AutoFactory m_autoFactory;
+
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
     XboxController m_oppController = new XboxController(OIConstants.kDriverControllerPort + 1);
+
+    private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
     public boolean fieldRelative = true;
 
     public RobotContainer() {
+        m_autoFactory = new AutoFactory(
+                m_robotDrive::getPose,
+                m_robotDrive::resetOdometry,
+                m_robotDrive::followTrajectory,
+                true,
+                m_robotDrive);
+
+        m_autoChooser.setDefaultOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory, "goBack"));        
+        m_autoChooser.addOption("goNeutral", new goNeutral(m_robotDrive, m_shooter, m_intake, m_autoFactory, "goNeutral"));
+        m_autoChooser.addOption("Do Nothing", new InstantCommand());
+        SmartDashboard.putData("Auto Chooser", m_autoChooser);
 
         configureButtonBindings();
 
@@ -87,7 +106,17 @@ public class RobotContainer {
             .onTrue(m_combo.toggleGateReverseCommand());
     }
 
+    public DriveSubsystem getDrivetrain() {
+        return m_robotDrive;
+    }
+
     public Command getAutonomousCommand() {
-        return new driveBackAndShoot(m_robotDrive, m_shooter, m_intake);
+        return m_autoChooser.getSelected();
+    }
+
+    public void applySimStartingPose() {
+        if (!RobotBase.isSimulation())
+            return;
+        m_robotDrive.setSimStartingPose(goBack.getStartingPose());
     }
 }

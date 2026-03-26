@@ -39,10 +39,6 @@ public class CombinationSubsystem extends SubsystemBase {
         return m_climber.climbDownCommand(2);
     }
 
-    public Command cycleSpeedCommand() {
-        return m_shooter.cycleShootSpeedCommand();
-    }
-
     public Command armUpCommand() {
         return m_intake.IntakeArmUpCommand(1);
     }
@@ -51,6 +47,9 @@ public class CombinationSubsystem extends SubsystemBase {
         return m_intake.IntakeArmDownCommand(1);
     }
 
+    public Command cycleSpeedCommand() {
+        return m_shooter.cycleShootSpeedCommand();
+    }
 
     //--Combined Commands
 

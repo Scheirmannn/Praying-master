@@ -1,48 +1,59 @@
 package frc.robot.autos;
 
+import choreo.auto.AutoFactory;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class driveBackAndShoot extends Command {
+public class goNeutral extends Command {
 
     private final DriveSubsystem m_drive;
     private final ShooterSubsystem m_shooter;
     private final IntakeSubsystem m_intake;
+    private final AutoFactory m_autoFactory;
+    private final String m_pathName;
 
     private Command m_autoSequence;
 
-    public driveBackAndShoot(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake) {
+    public goNeutral(DriveSubsystem drive, ShooterSubsystem shooter, IntakeSubsystem intake, AutoFactory autoFactory, String pathName) {
         m_drive = drive;
         m_shooter = shooter;
         m_intake = intake;
+        m_autoFactory = autoFactory;
+        m_pathName = pathName;
         addRequirements(drive, shooter, intake);
+    }
+
+    public static Pose2d getStartingPose() {
+        return new Pose2d(4.0, 4.0, new Rotation2d());
     }
 
     @Override
     public void initialize() {
+        m_drive.resetOdometry(getStartingPose());
+
         m_autoSequence = Commands.sequence(
-            new InstantCommand(() -> m_intake.setArmDown()),
-        
-            new RunCommand(() -> m_drive.drive(-0.3, 0, 0, false), m_drive)
-                .withTimeout(2.0),
+                new InstantCommand(() -> m_intake.setArmDown()),
 
-            new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
+                m_autoFactory.trajectoryCmd(m_pathName),
 
-            m_shooter.fullShootCommand().withTimeout(8.0),
+                new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
 
-            m_shooter.dualStopCommand()
-        );
+                m_shooter.fullShootCommand().withTimeout(8.0),
+
+                m_shooter.dualStopCommand());
         m_autoSequence.schedule();
     }
 
     @Override
     public void end(boolean interrupted) {
-        if (m_autoSequence != null) m_autoSequence.cancel();
+        if (m_autoSequence != null)
+            m_autoSequence.cancel();
         m_drive.drive(0, 0, 0, false);
         m_shooter.dualStopCommand().schedule();
     }

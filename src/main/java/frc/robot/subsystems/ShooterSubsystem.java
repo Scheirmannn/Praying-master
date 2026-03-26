@@ -43,22 +43,8 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
     }
-    
-    public enum gateProfiles {
-        LOW(0.50),
-        MEDIUM(0.67),
-        HIGH(0.83);
-
-        public final double gatePower;
-
-        gateProfiles(double gatePower) {
-            this.gatePower = gatePower;
-        }
-
-    }
 
     private speedProfiles m_currentSpeed = speedProfiles.LOW;
-    private gateProfiles m_currentGatePower = gateProfiles.LOW;
 
     public ShooterSubsystem(int leftMotorId, int rightMotorId, int gateMotorId) {
 
@@ -83,7 +69,6 @@ public class ShooterSubsystem extends SubsystemBase {
         leftEncoder = leftMotor.getEncoder();
         rightEncoder = rightMotor.getEncoder();
         SmartDashboard.putString("Current Speed", m_currentSpeed.name());
-        SmartDashboard.putNumber("Current Gate Power", m_currentGatePower.gatePower);
         SmartDashboard.putBoolean("Shooter at Speed", false);
 
     }
@@ -99,14 +84,6 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putString("Current Speed", m_currentSpeed.name());
     }
 
-    public void cycleGatePowers() {
-        gateProfiles[] profiles = gateProfiles.values();
-        int next = (m_currentGatePower.ordinal() + 1) % profiles.length;
-        m_currentGatePower = profiles[next];
-        SmartDashboard.putNumber("Current Gate Power", m_currentGatePower.gatePower);
-
-    }
-
     public void setSpeedProfile(speedProfiles profile) {
         m_currentSpeed = profile;
         SmartDashboard.putString("Current Speed", m_currentSpeed.name());
@@ -114,10 +91,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double currentSpeed() {
         return m_currentSpeed.speed;
-    }
-
-    public double currentGatePower() {
-        return m_currentGatePower.gatePower;
     }
 
     //   Other vars
@@ -169,7 +142,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command gateStartCommand() {
-        return new InstantCommand(() -> setGatePower(currentGatePower()), this);
+        return new InstantCommand(() -> setGatePower(0.67), this);
 
     }
 
@@ -217,12 +190,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command cycleShootSpeedCommand() {
         return new InstantCommand(() -> {
             cycleSpeeds();
-        }, this);
-    }
-
-    public Command cycleGatePowerCommand() {
-        return new InstantCommand(() -> {
-            cycleGatePowers();
         }, this);
     }
 
