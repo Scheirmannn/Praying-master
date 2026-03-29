@@ -32,7 +32,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum speedProfiles {
         LOW(15.0),
         MID(17.0),
-        HIGH(20.0),
         MAX(28.0);
 
         public final double speed;
@@ -151,9 +150,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command gateWaitCommand() {
         return Commands.sequence(
-                Commands.waitUntil(this::isAtSpeed),
-                Commands.waitSeconds(0.5),
-                gateStartCommand());
+            Commands.waitUntil(this::isAtSpeed),
+            Commands.waitSeconds(0.5),
+            gateStartCommand()
+        );
     }
 
     public Command gateStopCommand() {
@@ -182,14 +182,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command fullShootCommand() {
         return Commands.parallel(
-                shooterSpinUpCommand(),
-                gateWaitCommand());
+            shooterSpinUpCommand(),
+            gateWaitCommand()
+        );
     }
 
     public Command fullShootVisionCommand() {
         return Commands.sequence(
-                new InstantCommand(() -> enableVisionSpeed(true), this),
-                fullShootCommand());
+            new InstantCommand(() -> enableVisionSpeed(true), this),
+            fullShootCommand()
+        );
     }
 
     public Command cycleShootSpeedCommand() {
@@ -207,8 +209,7 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Ideal Speed", resolveTargetSpeed());
         SmartDashboard.putNumber("Cached Vision Speed", m_cachedVisionSpeed);
         SmartDashboard.putBoolean("Vision Speed Mode", m_useVisionSpeed);
-        SmartDashboard.putBoolean("Using Cached Speed",
-                m_useVisionSpeed && m_vision != null && !m_vision.hasTarget());
+        SmartDashboard.putBoolean("Using Cached Speed",  m_useVisionSpeed && m_vision != null && !m_vision.hasTarget());
         SmartDashboard.putString("Current Speed", m_currentSpeed.name());
     }
 }

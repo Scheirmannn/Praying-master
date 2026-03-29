@@ -30,7 +30,7 @@ public class RobotContainer {
     private final DriveSubsystem m_robotDrive = new DriveSubsystem();
     private final HopperSubsystem m_hopper = new HopperSubsystem();
     private final ClimberSubsystem m_climber = new ClimberSubsystem();
-    //private final Vision m_vision = new Vision(m_robotDrive::addVisionMeasurement);
+    private final Vision m_vision = new Vision(m_robotDrive::addVisionMeasurement);
     private final ShooterSubsystem m_shooter = new ShooterSubsystem(SparkConstants.kLeftShooterCanId, SparkConstants.kRightShooterCanId, SparkConstants.kGateMotorCanId);
     private final IntakeSubsystem m_intake = new IntakeSubsystem(SparkConstants.kLeftIntakeCanId, SparkConstants.kRightIntakeCanId);
     private final CombinationSubsystem m_combo = new CombinationSubsystem(m_shooter, m_intake, m_hopper, m_climber);
@@ -50,7 +50,7 @@ public class RobotContainer {
     public boolean fieldRelative = true;
 
     public RobotContainer() {
-        //m_shooter.useVision(m_vision);
+        m_shooter.useVision(m_vision);
 
         m_autoFactory = new AutoFactory(
                 m_robotDrive::getPose,

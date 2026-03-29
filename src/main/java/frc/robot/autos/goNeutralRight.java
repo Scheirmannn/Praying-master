@@ -55,13 +55,11 @@ public class goNeutralRight extends Command implements AutoWithPose {
                 m_combo.gateReverseAndIntakeCommand(),
                 m_autoFactory.trajectoryCmd("goNeutralRightPt3")         
             ),
-                  
+
             new InstantCommand(() -> m_drive.stopModules(), m_drive),
 
             m_combo.gateAndIntakeStopCommand(),
-            m_shooter.fullShootCommand().withTimeout(4),
-            m_shooter.dualStopCommand());
-
+            m_shooter.fullShootCommand().withTimeout(6.7));
         m_autoSequence.schedule();
     }
 
@@ -70,6 +68,7 @@ public class goNeutralRight extends Command implements AutoWithPose {
         if (m_autoSequence != null)
             m_autoSequence. cancel();
         m_drive.drive(0, 0, 0, false);
+        m_shooter.dualStopCommand().schedule();
     }
 
     @Override
