@@ -47,7 +47,7 @@ public class goLadder extends Command implements AutoWithPose {
                 
             m_combo.climberDownCommand(),
             m_combo.completeShoot().withTimeout(4),
-            m_combo.completeStop()
+            m_combo.completeShooterStop()
         );
 
 

@@ -100,12 +100,12 @@ public class RobotContainer {
 
 
         new Trigger(() -> m_oppController.getLeftTriggerAxis() > 0.1)
-            .whileTrue(m_combo.gateReverseAndIntakeCommand())
-            .onFalse(m_combo.gateAndIntakeStopCommand());
+            .whileTrue(m_combo.completeIntake())
+            .onFalse(m_combo.completeIntakeStop());
 
         new Trigger(() -> m_oppController.getRightTriggerAxis() > 0.1)
             .whileTrue(m_combo.completeShoot())
-            .onFalse(m_combo.completeStop());
+            .onFalse(m_combo.completeShooterStop());
 
         new JoystickButton(m_oppController, XboxController.Button.kA.value)
             .onTrue(m_combo.cycleSpeedCommand());
@@ -115,9 +115,6 @@ public class RobotContainer {
 
         new JoystickButton(m_oppController, XboxController.Button.kRightBumper.value)
             .onTrue(m_combo.armDownCommand());
-
-        new JoystickButton(m_oppController, XboxController.Button.kStart.value)
-            .onTrue(m_combo.toggleGateReverseCommand());
     }
 
     public DriveSubsystem getDrivetrain() {

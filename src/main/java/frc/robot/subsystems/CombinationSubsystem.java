@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.Set;
+
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class CombinationSubsystem extends SubsystemBase {
@@ -60,14 +63,16 @@ public class CombinationSubsystem extends SubsystemBase {
         );
     }
 
-    public Command toggleGateReverseCommand() {
-        gateReversed = !gateReversed;
-        if (!gateReversed) {
-            return m_shooter.gateStopCommand();
-        }
-        return m_shooter.gateReverseCommand(0.05);
+    public Command setGateReversedCommand(boolean reversed) {
+        return new InstantCommand(() -> {
+            gateReversed = reversed;
+            if (reversed) {
+                m_shooter.setGatePower(-0.05);
+            } else {
+                m_shooter.gateStop();
+            }
+        }, m_shooter);
     }
-
 
     public Command shrinkCommand() {
         return Commands.sequence (
@@ -94,27 +99,54 @@ public class CombinationSubsystem extends SubsystemBase {
         }, m_shooter, m_intake);
     }
     //--Finalized Commands
-    
 
-    public Command completeShoot() {
-        if (gateReversed) {
-            return Commands.sequence(
-                m_shooter.gateStopCommand(),
-                m_shooter.fullShootCommand()
-            );
-        } 
-        return m_shooter.fullShootCommand();
+    public Command completeIntake() {
+        return Commands.defer(() -> {
+            if (gateReversed) {
+                return Commands.sequence(
+                    m_shooter.gateStopCommand(),
+                    gateReverseAndIntakeCommand()
+                );
+            }
+            return gateReverseAndIntakeCommand();
+        }, Set.of(m_shooter, m_intake, m_hopper));
     }
 
-    public Command completeStop() {
-        if (gateReversed) {
-            return new InstantCommand(() -> {
-                m_shooter.gateStop();
-                m_shooter.setShooterVelocity(0);
-                m_shooter.setGatePower(-0.05);
-            }, m_shooter);
-        }
-        return m_shooter.dualStopCommand();
+    public Command completeIntakeStop() {
+        return Commands.defer(() -> {
+            if (gateReversed) {
+                return Commands.sequence(
+                    gateAndIntakeStopCommand(),
+                    m_shooter.gateReverseCommand(0.05)
+                );
+            }
+            return gateAndIntakeStopCommand();
+        }, Set.of(m_shooter, m_intake));
+    }
+
+    public Command completeShoot() {
+        return Commands.defer(() -> {
+            if (gateReversed) {
+                return Commands.sequence(
+                    m_shooter.gateStopCommand(),
+                    m_shooter.fullShootCommand()
+                );
+            }
+            return m_shooter.fullShootCommand();
+        }, Set.of(m_shooter));
+    }
+
+    public Command completeShooterStop() {
+        return Commands.defer(() -> {
+            if (gateReversed) {
+                return new InstantCommand(() -> {
+                    m_shooter.gateStop();
+                    m_shooter.setShooterVelocity(0);
+                    m_shooter.setGatePower(-0.05);
+                }, m_shooter);
+            }
+            return m_shooter.dualStopCommand();
+        }, Set.of(m_shooter));
     }
 
 
