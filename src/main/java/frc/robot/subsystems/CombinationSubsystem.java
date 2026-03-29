@@ -31,7 +31,12 @@ public class CombinationSubsystem extends SubsystemBase {
     }
 
     public Command hopperDownCommand() {
-        return m_hopper.hopperDownCommand(1);
+        return Commands.defer(() -> {
+            if (m_intake.m_intakeUp) {
+                return new InstantCommand();
+            }
+            return m_hopper.hopperDownCommand(1);
+        }, Set.of(m_hopper));
     }
 
     public Command climberUpCommand() {
@@ -74,22 +79,23 @@ public class CombinationSubsystem extends SubsystemBase {
         }, m_shooter);
     }
 
-    public Command shrinkCommand() {
-        return Commands.sequence (
-            armUpCommand(),
-            m_hopper.hopperDownCommand(2)
-        );
-
-    }
-
     public Command gateReverseAndIntakeCommand() {
-        return Commands.sequence(
-            m_hopper.hopperUpCommand(2),
-            new RunCommand(() -> {
+        return Commands.defer(() -> {
+            if (!m_hopper.m_out) {
+                return Commands.sequence(
+                    m_hopper.hopperUpCommand(2),
+                    new RunCommand(() -> {
+                        m_shooter.setGatePower(-0.1);
+                        m_intake.setIntakeVelocity(0.4);
+                    }, m_shooter, m_intake)
+                );
+            }
+            return new RunCommand(() -> {
                 m_shooter.setGatePower(-0.1);
                 m_intake.setIntakeVelocity(0.4);
-            }, m_shooter, m_intake)
-        );
+            }, m_shooter, m_intake);
+
+        }, Set.of(m_shooter, m_intake, m_hopper));
     }
 
     public Command gateAndIntakeStopCommand() {
@@ -98,6 +104,7 @@ public class CombinationSubsystem extends SubsystemBase {
             m_intake.stop();
         }, m_shooter, m_intake);
     }
+    
     //--Finalized Commands
 
     public Command completeIntake() {

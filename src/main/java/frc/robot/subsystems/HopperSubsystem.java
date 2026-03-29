@@ -44,11 +44,7 @@ public class HopperSubsystem extends SubsystemBase {
 
     public Command hopperDownCommand(double time) {
         return Commands.sequence(
-            new InstantCommand(() -> {
-                if (m_out) {
-                    setHopperIn();
-                }
-            }, this),
+            new InstantCommand(() -> { setHopperIn(); }, this),
             Commands.waitSeconds(time),
             hopperStopCommand()
         );
