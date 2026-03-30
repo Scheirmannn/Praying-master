@@ -26,7 +26,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder rightEncoder;
 
     private Vision m_vision = null;
-    private boolean m_useVisionSpeed = false;
+    public boolean m_useVisionSpeed = false;
     private double m_cachedVisionSpeed = speedProfiles.LOW.speed;
 
     public enum speedProfiles {
@@ -138,9 +138,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command visionToggle() {
         if (m_useVisionSpeed) {
-            return new InstantCommand(() -> enableVisionSpeed(false));
+            return new InstantCommand(() -> enableVisionSpeed(false), this);
         }
-        return new InstantCommand(() -> enableVisionSpeed(true));
+        return new InstantCommand(() -> enableVisionSpeed(true), this);
     }
 
     public Command shooterSpinUpCommand() {
