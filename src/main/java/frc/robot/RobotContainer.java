@@ -99,6 +99,7 @@ public class RobotContainer {
             () -> m_robotDrive.setX(), m_robotDrive));
 
 
+        
         new Trigger(() -> m_oppController.getLeftTriggerAxis() > 0.1)
             .whileTrue(m_combo.completeIntake())
             .onFalse(m_combo.completeIntakeStop());
@@ -110,12 +111,27 @@ public class RobotContainer {
         new JoystickButton(m_oppController, XboxController.Button.kA.value)
             .onTrue(m_combo.cycleSpeedCommand());
 
+        new JoystickButton(m_oppController, XboxController.Button.kY.value)
+            .onTrue(m_combo.visionToggle());
+
         new JoystickButton(m_oppController, XboxController.Button.kLeftBumper.value)
             .onTrue(m_combo.armUpCommand());
 
         new JoystickButton(m_oppController, XboxController.Button.kRightBumper.value)
             .onTrue(m_combo.armDownCommand());
-    }
+        
+        new Trigger(() -> m_oppController.getPOV() == 0)
+            .onTrue(m_combo.climberUpCommand());
+
+        new Trigger(() -> m_oppController.getPOV() == 180)
+            .onTrue(m_combo.climberDownCommand());
+
+        new Trigger(() -> m_oppController.getPOV() == 90)
+            .onTrue(m_combo.hopperUpCommand());
+
+        new Trigger(() -> m_oppController.getPOV() == 270)
+            .onTrue(m_combo.hopperDownCommand());   
+        }
 
     public DriveSubsystem getDrivetrain() {
         return m_robotDrive;

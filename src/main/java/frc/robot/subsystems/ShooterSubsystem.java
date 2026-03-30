@@ -136,6 +136,13 @@ public class ShooterSubsystem extends SubsystemBase {
         gateMotor.stopMotor();
     }
 
+    public Command visionToggle() {
+        if (m_useVisionSpeed) {
+            return new InstantCommand(() -> enableVisionSpeed(false));
+        }
+        return new InstantCommand(() -> enableVisionSpeed(true));
+    }
+
     public Command shooterSpinUpCommand() {
         return new RunCommand(() -> setShooterVelocity(resolveTargetSpeed()));
     }

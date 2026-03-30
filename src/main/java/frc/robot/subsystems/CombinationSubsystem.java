@@ -59,6 +59,10 @@ public class CombinationSubsystem extends SubsystemBase {
         return m_shooter.cycleShootSpeedCommand();
     }
 
+    public Command visionToggle() {
+        return m_shooter.visionToggle();
+    }
+
     //--Combined Commands
 
     public Command startingCommand() {
