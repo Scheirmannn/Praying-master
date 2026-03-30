@@ -145,20 +145,20 @@ public final class Constants {
     public static final double kFrontRightCameraLateralOffsetMeters = -0.2;
 
     public static final Transform3d kRobotToFrontLeftCamera = new Transform3d(
-        new Translation3d(0.3, 0.2, 0.2),
-        new Rotation3d(0, 0, Math.toRadians(30)));
+        new Translation3d(0.3, kFrontLeftCameraLateralOffsetMeters, 0.2),
+        new Rotation3d(0, 0, Math.toRadians(kFrontLeftCameraYawDegrees)));
 
     public static final Transform3d kRobotToFrontRightCamera = new Transform3d(
-        new Translation3d(0.3, -0.2, 0.2),
-        new Rotation3d(0, 0, Math.toRadians(-30)));
+        new Translation3d(0.3, kFrontRightCameraLateralOffsetMeters, 0.2),
+        new Rotation3d(0, 0, Math.toRadians(kFrontRightCameraYawDegrees)));
 
     public static final AprilTagFieldLayout kTagLayout =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
-    public static final int[] kRedAllianceTagIds  = new int[]{1, 2, 3, 4};
-    public static final int[] kBlueAllianceTagIds = new int[]{5, 6, 7, 8};
+    public static final int[] kRedAllianceTagIds  = new int[]{9, 10, 6, 1};
+    public static final int[] kBlueAllianceTagIds = new int[]{17, 26, 25, 22};
 
-    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
-    public static final Matrix<N3, N1> kMultiTagStdDevs  = VecBuilder.fill(0.5, 0.5, 1);
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.1, 0.1, 0.3);
   }
 }

@@ -17,6 +17,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -63,6 +64,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final PIDController m_visionAlignController = new PIDController(0.04, 0, 0.001);
 
+  private final Field2d m_field = new Field2d();
+
   public DriveSubsystem() {
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
     m_gyro.reset();
@@ -80,8 +83,10 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         new Pose2d(),
-        VecBuilder.fill(0.05, 0.05, 0.05),
-        VecBuilder.fill(0.5, 0.5, 0.5));
+        VecBuilder.fill(1, 1, 1),
+        VecBuilder.fill(0.01, 0.01, 0.01));
+
+    SmartDashboard.putData("Field", m_field);
   }
 
   private Rotation2d getGyroRotation() {
@@ -101,6 +106,9 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
+
+    Pose2d pose = getPose();
+    m_field.setRobotPose(pose);
   }
 
   @Override
@@ -117,6 +125,9 @@ public class DriveSubsystem extends SubsystemBase {
       m_simGyroAngle -= 360;
     while (m_simGyroAngle < -180)
       m_simGyroAngle += 360;
+
+    // Update field with sim pose so the robot moves on the dashboard in sim
+    m_field.setRobotPose(getPose());
   }
 
   public Pose2d getPose() {
@@ -133,10 +144,14 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         pose);
+
+    // Reset field pose immediately so dashboard doesn't show stale position
+    m_field.setRobotPose(pose);
   }
 
   public void addVisionMeasurement(Pose2d pose, double timestampSeconds, Matrix<N3, N1> stdDevs) {
     m_poseEstimator.addVisionMeasurement(pose, timestampSeconds, stdDevs);
+    m_field.getObject("vision").setPose(pose);
   }
 
   public void followTrajectory(SwerveSample sample) {
@@ -145,11 +160,11 @@ public class DriveSubsystem extends SubsystemBase {
       sample = sample.flipped();
     }
 
+    Pose2d pose = getPose();
+  
     SmartDashboard.putNumberArray("Choreo Target Pose", new double[] {
         sample.x, sample.y, sample.heading
     });
-
-    Pose2d pose = getPose();
 
     SmartDashboard.putNumber("Choreo/XError", sample.x - pose.getX());
     SmartDashboard.putNumber("Choreo/YError", sample.y - pose.getY());
@@ -268,6 +283,10 @@ public class DriveSubsystem extends SubsystemBase {
       m_simGyroAngle = pose.getRotation().getDegrees();
       resetOdometry(pose);
     }
+  }
+
+  public Field2d getField() {
+    return m_field;
   }
 
   public void log() {
