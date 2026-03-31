@@ -120,7 +120,7 @@ public class CombinationSubsystem extends SubsystemBase {
                 );
             }
             return gateReverseAndIntakeCommand();
-        }, Set.of(m_shooter, m_intake, m_hopper));
+        }, Set.of(m_shooter, m_intake));
     }
 
     public Command completeIntakeStop() {

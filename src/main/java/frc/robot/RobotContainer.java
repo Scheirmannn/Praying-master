@@ -2,8 +2,6 @@ package frc.robot;
 
 import choreo.auto.AutoFactory;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,10 +35,6 @@ public class RobotContainer {
 
     private AutoFactory m_autoFactory;
     
-    
-    public interface AutoWithPose {
-        Pose2d getStartingPose();
-    }
 
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
     XboxController m_oppController = new XboxController(OIConstants.kDriverControllerPort + 1);
@@ -59,9 +53,10 @@ public class RobotContainer {
                 true,
                 m_robotDrive);
 
-        m_autoChooser.setDefaultOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));   
+        
+        m_autoChooser.setDefaultOption("goDepot", new goDepot(m_robotDrive, m_combo, m_autoFactory)); 
         m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_shooter, m_combo, m_autoFactory));
-        m_autoChooser.addOption("goDepot", new goDepot(m_robotDrive, m_shooter, m_intake, m_autoFactory));
+        m_autoChooser.addOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));   
         m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_shooter, m_autoFactory));
         m_autoChooser.addOption("Do Nothing", new InstantCommand());
         SmartDashboard.putData("Auto Chooser", m_autoChooser);
@@ -141,12 +136,4 @@ public class RobotContainer {
         return m_autoChooser.getSelected();
     }
 
-    public void applySimStartingPose() {
-        if (!RobotBase.isSimulation())
-            return;
-        Command selected = m_autoChooser.getSelected();
-        if (selected instanceof AutoWithPose auto) {
-            m_robotDrive.setSimStartingPose(auto.getStartingPose());
-        }
-    }
 }
