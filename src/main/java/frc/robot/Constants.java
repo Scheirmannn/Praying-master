@@ -141,16 +141,16 @@ public final class Constants {
     public static final double kFrontLeftCameraYawDegrees  =  30.0;
     public static final double kFrontRightCameraYawDegrees = -30.0;
 
-    public static final double kFrontLeftCameraLateralOffsetMeters  =  0.2;
-    public static final double kFrontRightCameraLateralOffsetMeters = -0.2;
+    public static final double kFrontLeftCameraLateralOffsetMeters  =  0.25;
+    public static final double kFrontRightCameraLateralOffsetMeters = -0.25;
 
     public static final Transform3d kRobotToFrontLeftCamera = new Transform3d(
-        new Translation3d(0.3, kFrontLeftCameraLateralOffsetMeters, 0.2),
-        new Rotation3d(0, 0, Math.toRadians(kFrontLeftCameraYawDegrees)));
+        new Translation3d(0.3, kFrontLeftCameraLateralOffsetMeters, 0.25),
+        new Rotation3d(-90, 0, Math.toRadians(kFrontLeftCameraYawDegrees)));
 
     public static final Transform3d kRobotToFrontRightCamera = new Transform3d(
-        new Translation3d(0.3, kFrontRightCameraLateralOffsetMeters, 0.2),
-        new Rotation3d(0, 0, Math.toRadians(kFrontRightCameraYawDegrees)));
+        new Translation3d(0.3, kFrontRightCameraLateralOffsetMeters, 0.25),
+        new Rotation3d(90, 0, Math.toRadians(kFrontRightCameraYawDegrees)));
 
     public static final AprilTagFieldLayout kTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);

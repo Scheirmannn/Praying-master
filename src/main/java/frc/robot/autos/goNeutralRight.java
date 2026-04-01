@@ -2,6 +2,7 @@ package frc.robot.autos;
 
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.CombinationSubsystem;
@@ -52,7 +53,7 @@ public class goNeutralRight extends Command {
             m_combo.gateAndIntakeStopCommand(),
 
             m_shooter.fullShootCommand().withTimeout(6.7));
-        m_autoSequence.schedule();
+        CommandScheduler.getInstance().schedule(m_autoSequence);
     }
 
     @Override

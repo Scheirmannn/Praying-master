@@ -8,8 +8,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.SparkConstants;
 import frc.robot.autos.goBack;
 import frc.robot.autos.goDepot;
-import frc.robot.autos.goLadder;
-import frc.robot.autos.goNeutralRight;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CombinationSubsystem;
@@ -55,9 +53,9 @@ public class RobotContainer {
 
         
         m_autoChooser.setDefaultOption("goDepot", new goDepot(m_robotDrive, m_combo, m_autoFactory)); 
-        m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_shooter, m_combo, m_autoFactory));
-        m_autoChooser.addOption("goBack", new goBack(m_robotDrive, m_shooter, m_intake, m_autoFactory));   
-        m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_shooter, m_autoFactory));
+        //m_autoChooser.addOption("goLadder", new goLadder(m_robotDrive, m_combo, m_autoFactory));
+        m_autoChooser.addOption("goBack", new goBack(m_robotDrive, m_combo, m_autoFactory));   
+        //m_autoChooser.addOption("goNeutralRight", new goNeutralRight(m_robotDrive, m_combo, m_shooter, m_autoFactory));
         m_autoChooser.addOption("Do Nothing", new InstantCommand());
         SmartDashboard.putData("Auto Chooser", m_autoChooser);
 
