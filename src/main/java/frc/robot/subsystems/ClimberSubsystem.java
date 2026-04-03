@@ -44,11 +44,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public Command climbDownCommand(double time) {
         return Commands.sequence(
-            new InstantCommand(() -> {
-                if (m_climbed) {
-                    setClimbDown();
-                }
-            }, this),
+            new InstantCommand(() -> { setClimbDown(); }, this),
             Commands.waitSeconds(time),
             climbStopCommand()
         );
@@ -56,11 +52,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public Command climbUpCommand(double time) {
       return Commands.sequence(
-            new InstantCommand(() -> {
-                if (!m_climbed) {
-                    setClimbUp();
-                }
-            }, this),
+            new InstantCommand(() -> { setClimbUp(); }, this),
             Commands.waitSeconds(time),
             climbStopCommand()
         ); 

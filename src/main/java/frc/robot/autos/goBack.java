@@ -30,7 +30,7 @@ public class goBack extends Command{
 
             m_combo.startingCommand(), 
             m_autoFactory.trajectoryCmd("goBack"),
-            
+
             new InstantCommand(() -> m_drive.stopModules(), m_drive),
 
             m_combo.completeShoot().withTimeout(15)

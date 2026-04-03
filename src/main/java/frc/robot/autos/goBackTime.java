@@ -24,6 +24,7 @@ public class goBackTime extends Command {
     @Override
     public void initialize() {
         m_autoSequence = Commands.sequence(    
+            m_combo.setGateReversedCommand(true),
             new RunCommand(() -> m_drive.drive(-0.3, 0, 0, false), m_drive).withTimeout(1.0),
 
             new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
