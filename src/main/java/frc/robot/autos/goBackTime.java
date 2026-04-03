@@ -1,41 +1,38 @@
 package frc.robot.autos;
 
-import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.CombinationSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 
-public class goBack extends Command{
+public class goBackTime extends Command {
 
     private final DriveSubsystem m_drive;
     private final CombinationSubsystem m_combo;
-    private final AutoFactory m_autoFactory;
 
     private Command m_autoSequence;
 
-    public goBack(DriveSubsystem drive, CombinationSubsystem combo,  AutoFactory autoFactory) {
+    public goBackTime(DriveSubsystem drive, CombinationSubsystem combo) {
         m_drive = drive;
         m_combo = combo;
-        m_autoFactory = autoFactory;
         addRequirements(drive);
     }
 
     @Override
     public void initialize() {
-        m_autoSequence = Commands.sequence(
-            m_combo.setGateReversedCommand(true),
+        m_autoSequence = Commands.sequence(    
+            new RunCommand(() -> m_drive.drive(-0.3, 0, 0, false), m_drive).withTimeout(1.0),
 
-            m_combo.startingCommand(), 
-            m_autoFactory.trajectoryCmd("goBack"),
-            
-            new InstantCommand(() -> m_drive.stopModules(), m_drive),
+            new InstantCommand(() -> m_drive.drive(0, 0, 0, false), m_drive),
 
-            m_combo.completeShoot().withTimeout(15)
+            m_combo.completeShoot().withTimeout(8.0),
+
+            m_combo.completeShooterStop()
         );
-        
+
         CommandScheduler.getInstance().schedule(m_autoSequence);
     }
 

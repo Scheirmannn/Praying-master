@@ -51,7 +51,7 @@ public class DriveSubsystem extends SubsystemBase {
       SparkConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-  public final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+  public final AHRS m_gyro = new AHRS(NavXComType.kUSB1);
 
   private double m_simGyroAngle = 0.0;
   private ChassisSpeeds m_lastChassisSpeeds = new ChassisSpeeds();
